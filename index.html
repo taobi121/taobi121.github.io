@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>闭涛 · 个人作品集</title>
+<meta name="description" content="闭涛的个人作品集：一本关于「学习 × 工作 × 创作」的交互翻页书。信息管理与信息系统在读，数据分析 × 内容运营，已保研南京大学。">
+<!-- 零外部依赖：样式/脚本/插画/证书图全部本地文件，可离线打开 -->
+<!-- JS 禁用兜底：直接展示封面静态内容 -->
+<noscript><style>.page{position:static !important;opacity:1 !important;transform:none !important;} .pagebar,.chapters{display:none !important;}</style></noscript>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ========== 页眉：书名 + 章节导航 + 工具区 ========== -->
+<div class="topbar">
+  <button class="mark" type="button" data-go="0" aria-label="回到封面">闭涛<span>.</span></button>
+  <nav class="chapters" aria-label="章节导航">
+    <button type="button" data-go="1" data-ch="1" data-i18n="nav.learn">学习</button>
+    <button type="button" data-go="2" data-ch="2" data-i18n="nav.work">工作</button>
+    <button type="button" data-go="3" data-ch="3" data-i18n="nav.create">创作</button>
+  </nav>
+  <div class="tools">
+    <button id="langBtn" type="button" aria-label="切换语言">EN</button>
+    <button id="soundBtn" type="button" aria-pressed="false" aria-label="翻页声音开关">
+      <i class="snd-dot" aria-hidden="true"></i><span data-i18n="nav.soundOff">声音 关</span>
+    </button>
+    <a class="resume-pill" href="resume.pdf" target="_blank" data-i18n="nav.resume">简历</a>
+  </div>
+</div>
+
+<!-- ========== 书本：5 页 ========== -->
+<main class="book" id="book">
+
+  <!-- 第 1 页 · 封面 -->
+  <section class="page page-cover" id="page-0">
+    <img class="cover-bg" src="images/hero-wide.png" alt="">
+    <div class="cover-shade" aria-hidden="true"></div>
+    <div class="cover-content">
+      <p class="cover-kicker" data-i18n="cover.kicker">Welcome to my world</p>
+      <h1 class="cover-title">Hi, I'm <span>闭涛</span>.</h1>
+      <p class="cover-sub" data-i18n="cover.sub">信息管理与信息系统在读 · 数据分析 × 内容运营 · 已保研南京大学</p>
+      <p class="cover-sub-en" data-i18n="cover.subEn">I'm a student, an analyst, and a creator.</p>
+      <!-- 三个身份入口，对应三个章节 -->
+      <div class="cover-roles">
+        <button class="role-chip" type="button" data-go="1">
+          <b data-i18n="role.learn">学习</b><i>Learn · 数据 × 大模型 × 书架</i>
+        </button>
+        <button class="role-chip" type="button" data-go="2">
+          <b data-i18n="role.work">工作</b><i>Work · 项目 · 论文 · 竞赛</i>
+        </button>
+        <button class="role-chip" type="button" data-go="3">
+          <b data-i18n="role.create">创作</b><i>Create · 内容 × Vibe Coding</i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 第 2 页 · 学习（书架 + 教育经历 + 时间轴） -->
+  <section class="page page-chapter" id="page-1">
+    <div class="sheet">
+      <header class="sheet-head">
+        <p class="sheet-kicker">Learning archive</p>
+        <h2 data-i18n="learn.title">学习档案 · 书架</h2>
+      </header>
+      <p class="sheet-note" data-i18n="learn.note">我的教育经历，与书架上的 13 本「证书之书」。点击书脊，翻阅扫描件。</p>
+      <div class="edu-line">
+        <span class="edu-item"><b data-i18n="learn.bachelor">本科</b>武汉 · 华中师范大学（211）信息管理学院</span>
+        <span class="edu-arrow" aria-hidden="true">→</span>
+        <span class="edu-item"><b data-i18n="learn.master">硕士（已保研）</b>南京 · 南京大学（985）信息管理学院</span>
+      </div>
+      <div class="shelf">
+        <div class="books" id="books" aria-label="证书书架，点击查看扫描件"></div>
+        <div class="shelf-board" aria-hidden="true"></div>
+      </div>
+      <div class="tl" id="timeline" aria-label="时间轴"></div>
+    </div>
+    <div class="art art-learn"><img src="images/hero-tall.png" alt=""></div>
+  </section>
+
+  <!-- 第 3 页 · 工作（项目文档 + 技能箱） -->
+  <section class="page page-chapter" id="page-2">
+    <div class="sheet">
+      <header class="sheet-head">
+        <p class="sheet-kicker">Professional archive</p>
+        <h2 data-i18n="work.title">工作档案 · 项目文档</h2>
+      </header>
+      <div class="tabs" id="workTabs" role="tablist" aria-label="项目切换"></div>
+      <article class="doc" id="workPanel" role="tabpanel"></article>
+      <div class="skillbox">
+        <p class="skillbox-title" data-i18n="work.skillsTitle">技能工具箱</p>
+        <div id="skills"></div>
+      </div>
+    </div>
+    <div class="art art-work"><img src="images/hero-tall.png" alt=""></div>
+  </section>
+
+  <!-- 第 4 页 · 创作（内容作品 + 本站） -->
+  <section class="page page-chapter" id="page-3">
+    <div class="sheet">
+      <header class="sheet-head">
+        <p class="sheet-kicker">Creating archive</p>
+        <h2 data-i18n="create.title">创作档案</h2>
+      </header>
+      <div class="stats" id="createStats"></div>
+      <div class="create-grid" id="createGrid"></div>
+    </div>
+    <div class="art art-create"><img src="images/hero-tall.png" alt=""></div>
+  </section>
+
+  <!-- 第 5 页 · 封底（建联） -->
+  <section class="page page-back" id="page-4">
+    <div class="back-glow" aria-hidden="true"></div>
+    <div class="back-content">
+      <p class="back-kicker" data-i18n="back.kicker">BACK COVER</p>
+      <h2 class="back-title" data-i18n="back.title">下一章，<br>写什么？</h2>
+      <p class="back-sub" data-i18n="back.sub">我对运营、产品与数据交叉领域的机会保持开放，<br>期待用「看数据说话 + 做内容增长」帮团队把事情做扎实。</p>
+      <p class="back-quote" data-i18n="back.quote">也许，我们可以一起写下它。</p>
+      <div class="back-actions">
+        <button class="btn-primary" type="button" id="emailBtn">✉ Email</button>
+        <a class="btn-ghost" href="resume.pdf" target="_blank" data-i18n="back.resume">Read the resume</a>
+      </div>
+      <div class="back-contacts" id="backContacts"></div>
+      <p class="back-sign">BITAO BI</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ========== 页脚：翻页控制 ========== -->
+<div class="pagebar">
+  <button id="prevBtn" type="button">← <span data-i18n="nav.prev">上一页</span></button>
+  <span class="page-indicator" id="pageIndicator" aria-live="polite"></span>
+  <button id="nextBtn" type="button"><span data-i18n="nav.next">下一页</span> →</button>
+</div>
+
+<!-- 证书灯箱 -->
+<div id="lightbox" role="dialog" aria-label="证书放大查看"><img id="lightboxImg" src="" alt="证书放大图"></div>
+<!-- 复制提示 -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
