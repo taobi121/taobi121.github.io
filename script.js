@@ -15,7 +15,7 @@ var I18N = {
   'nav.work':     { zh: '项目', en: 'PROJECTS' },
   'nav.create':   { zh: '创作', en: 'CREATE' },
   'nav.contact':  { zh: '联系我', en: 'CONTACT' },
-  'nav.resume':   { zh: '简历', en: 'Resume' },
+  'nav.resume':   { zh: '个人简历', en: 'Resume' },
   'nav.soundOff': { zh: '声音 关', en: 'Sound off' },
   'nav.soundOn':  { zh: '声音 开', en: 'Sound on' },
   'nav.prev':     { zh: '上一页', en: 'Prev' },
@@ -39,7 +39,6 @@ var I18N = {
   'work.intro':   { zh: '项目简介', en: 'About the project' },
   'work.handled': { zh: '个人贡献', en: 'What I handled' },
   'create.title': { zh: '创作档案', en: 'Creating archive' },
-  'back.kicker':  { zh: '封底', en: 'BACK COVER' },
   'back.title':   { zh: '下一章，写什么？', en: "What's the next chapter?" },
   'back.sub':     { zh: '我对运营、产品与数据交叉领域的机会保持开放，期待用「看数据说话 + 做内容增长」帮团队把事情做扎实。', en: "Open to roles across operations, product and data. I bring evidence-based analysis and content growth that gets things done." },
   'back.quote':   { zh: '也许，我们可以一起写下它。', en: 'Maybe we can write it together.' },
@@ -296,13 +295,19 @@ var PAGES = ['page-0','page-1','page-2','page-3','page-4'];
 var current = 0;
 function goTo(n, silent){
   n = Math.max(0, Math.min(PAGES.length - 1, n));
-  if (n === current) return;
-  var oldEl = document.getElementById(PAGES[current]);
+  var changed = n !== current;
+  var oldEl = changed ? document.getElementById(PAGES[current]) : null;
   var newEl = document.getElementById(PAGES[n]);
-  if (oldEl && !REDUCE){
-    oldEl.classList.remove('active');
+  // 兜底清理：无论 current 状态是否正确，先把所有非目标页的 active/leaving 全部摘掉
+  PAGES.forEach(function(id, i){
+    if (i === n) return;
+    var el = document.getElementById(id);
+    el.classList.remove('active');
+    if (el !== oldEl) el.classList.remove('leaving');
+  });
+  if (changed && oldEl && !REDUCE){
     oldEl.classList.add('leaving');
-    setTimeout(function(){ oldEl.classList.remove('leaving'); }, 450);
+    setTimeout(function(){ oldEl.classList.remove('leaving','active'); }, 450);
   } else if (oldEl){
     oldEl.classList.remove('active');
   }
@@ -427,7 +432,7 @@ document.getElementById('langBtn').addEventListener('click', function(){
 /* 哈希路由：刷新/直达某章 */
 function fromHash(){
   var idx = ['cover','learn','work','create','back'].indexOf(location.hash.replace('#',''));
-  if (idx > 0){ current = 0; goTo(idx, true); }
+  if (idx > 0) goTo(idx, true);  // 不再强行 current=0：由 goTo 内部清理所有页面状态
 }
 window.addEventListener('hashchange', fromHash);
 
