@@ -414,25 +414,28 @@ a{color:inherit;text-decoration:none;}
 /* ========== 移动端 ========== */
 @media (max-width:860px){
   body{overflow:auto;} /* 手机上允许页面内自然滚动 */
-  .mark{display:none;} /* 手机端顶栏放不下长站名，首页即封面 */
-  .chapters{margin-left:0;}
-  .chapters button{white-space:nowrap;padding:6px 8px;font-size:12.5px;letter-spacing:.04em;}
-  .resume-pill{padding:6px 12px;font-size:12.5px;}
-  .book{position:static;padding-top:var(--topbar-h);padding-bottom:var(--pagebar-h);perspective:none;}
-  .page{position:relative;display:none;inset:auto;min-height:calc(100vh - var(--topbar-h) - var(--pagebar-h));}
+  /* 顶栏改为两行：第一行 站名+工具，第二行 章节竖排；sticky 吸顶不占死高度 */
+  .topbar{position:sticky;top:0;height:auto;flex-wrap:wrap;gap:0;padding:8px 12px 10px;}
+  .mark{display:inline-flex;order:-2;font-size:13.5px;padding:3px 8px;}
+  .tools{order:-1;gap:6px;}
+  .tools button{padding:5px 8px;font-size:12px;}
+  .resume-pill{padding:5px 12px;font-size:12px;}
+  /* 章节竖排：每项独占一行，左侧对齐，全部可见 */
+  .chapters{flex:1 1 100%;flex-direction:column;gap:3px;margin:8px 0 0;}
+  .chapters button{text-align:left;padding:7px 12px;font-size:13.5px;letter-spacing:.12em;}
+  .book{position:static;padding-top:0;padding-bottom:var(--pagebar-h);perspective:none;}
+  .page{position:relative;display:none;inset:auto;min-height:70vh;}
   .page.active{display:block;}
   .page.leaving{display:none;}
-  .page-cover{min-height:calc(100vh - var(--topbar-h) - var(--pagebar-h));display:none;}
+  .page-cover{min-height:70vh;display:none;}
   .page-cover.active{display:flex;}
   .cover-content{padding:0 24px;}
-  /* 章节页：插画变顶部横幅，玻璃质感关闭 */
+  /* 章节页：手机端不要背景插画，纯纸页阅读 */
+  .page-chapter{background:var(--ink);}
   .sheet{border-radius:0;box-shadow:none;padding:24px 18px 36px;overflow:visible;height:auto;
     flex:none;width:100%;background:var(--paper);
     -webkit-backdrop-filter:none;backdrop-filter:none;}
-  .art{position:static;width:100%;height:200px;flex:none;}
-  .art::before{display:none;}
-  .art img{object-position:center 24%;}
-  .topbar{gap:8px;padding:0 10px;}
+  .art{display:none;}
   /* 悬浮栏：手机上贴右下横排，避开底部翻页条 */
   .contact-float{
     right:8px;left:auto;top:auto;bottom:calc(var(--pagebar-h) + 10px);transform:none;
