@@ -8,7 +8,461 @@
 <!-- 零外部依赖：样式/脚本/插画/证书图全部本地文件，可离线打开 -->
 <!-- JS 禁用兜底：直接展示封面静态内容 -->
 <noscript><style>.page{position:static !important;opacity:1 !important;transform:none !important;} .pagebar,.chapters{display:none !important;}</style></noscript>
-<link rel="stylesheet" href="style.css">
+<!-- style.css 已内联：单文件部署，杜绝 CDN 偶发不加载导致的裸页 -->
+<style>
+/* ============================================================
+   闭涛 · 书式作品集  style.css
+   设计概念：一本关于「学习 × 工作 × 创作」的交互翻页书
+   视觉语言：深墨底（书壳）+ 米白纸页（内页）+ 琥珀暖光（对应插画）
+   零外部依赖：系统字体栈，无外部字体/图标/CDN
+   ============================================================ */
+
+/* ---------- 全局变量 ---------- */
+:root{
+  --ink:#151210;          /* 书壳深墨 */
+  --ink-2:#1e1a16;        /* 稍浅墨色 */
+  --paper:#f7f2e7;        /* 内页米白纸 */
+  --paper-edge:#e9e1cf;   /* 纸页边缘 */
+  --amber:#d98e3f;        /* 主点缀：琥珀 */
+  --amber-deep:#b06f24;
+  --amber-soft:rgba(217,142,63,.14);
+  --blue:#5b7c99;         /* 冷点缀（书脊/标签） */
+  --olive:#7a7d4f;
+  --brick:#a4503c;
+  --plum:#7c4a5e;
+  --text:#2a2620;         /* 纸上深字 */
+  --muted:#6f6759;        /* 纸上次要字 */
+  --line:#ddd2ba;
+  --radius:14px;
+  --topbar-h:56px;
+  --pagebar-h:46px;
+  --flip:.42s cubic-bezier(.4,.1,.2,1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  background:var(--ink);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  overflow:hidden; /* 书式布局：整页切换，不滚动 body（章节内页各自滚动） */
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit;}
+a{color:inherit;text-decoration:none;}
+
+/* ========== 页眉 ========== */
+.topbar{
+  position:fixed;inset:0 0 auto 0;height:var(--topbar-h);z-index:50;
+  display:flex;align-items:center;gap:18px;padding:0 18px;
+  background:rgba(21,18,16,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.mark{
+  font-weight:800;font-size:16px;color:#f3ede2;letter-spacing:.01em;
+  padding:4px 12px;background:rgba(255,255,255,.06);border-radius:6px;white-space:nowrap;
+}
+.mark span{color:var(--amber);}
+.chapters{display:flex;gap:16px;margin-left:14px;}
+.chapters button{
+  color:#b9b0a2;font-size:14.5px;font-weight:600;letter-spacing:.18em;
+  padding:8px 16px;border-radius:999px;transition:color .15s,background .15s;
+}
+.chapters button:hover{color:#f3ede2;}
+.chapters button.on{color:#1c1917;background:var(--amber);}
+.tools{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.tools button{
+  color:#c9c0b2;font-size:13px;font-weight:600;padding:6px 12px;
+  border:1px solid rgba(255,255,255,.14);border-radius:999px;
+  display:inline-flex;align-items:center;gap:7px;transition:border-color .15s,color .15s;
+}
+.tools button:hover{border-color:var(--amber);color:#f3ede2;}
+.snd-dot{width:8px;height:8px;border-radius:50%;background:#5a5249;transition:background .15s;}
+#soundBtn[aria-pressed="true"] .snd-dot{background:var(--amber);}
+.resume-pill{
+  background:#f3ede2;color:#1c1917;font-size:14px;font-weight:700;
+  padding:8px 26px;border-radius:999px;transition:background .15s;
+  letter-spacing:.06em;white-space:nowrap;
+}
+.resume-pill:hover{background:var(--amber);}
+
+/* ========== 书本与翻页 ========== */
+.book{
+  position:fixed;inset:var(--topbar-h) 0 var(--pagebar-h) 0;
+  perspective:1600px;perspective-origin:50% 50%;
+}
+.page{
+  position:absolute;inset:0;display:none;
+  transform-origin:left center;
+  backface-visibility:hidden;
+}
+.page.active{display:flex;animation:pageIn var(--flip) both;}
+.page.leaving{display:flex;animation:pageOut var(--flip) both;pointer-events:none;}
+@keyframes pageIn{from{opacity:0;transform:rotateY(10deg) translateX(36px);}to{opacity:1;transform:none;}}
+@keyframes pageOut{from{opacity:1;transform:none;}to{opacity:0;transform:rotateY(-14deg) translateX(-48px);}}
+/* 减弱动态效果：跳过翻页动画 */
+@media (prefers-reduced-motion:reduce){
+  .page.active,.page.leaving{animation:none;}
+  *{transition:none !important;}
+}
+
+/* ========== 第 1 页 · 封面 ========== */
+.page-cover{overflow:hidden;}
+.cover-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;}
+.cover-shade{
+  position:absolute;inset:0;
+  background:linear-gradient(100deg,rgba(16,13,10,.86) 0%,rgba(16,13,10,.55) 42%,rgba(16,13,10,.12) 75%,rgba(16,13,10,.35) 100%);
+}
+.cover-content{
+  position:relative;z-index:2;height:100%;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 7vw;max-width:860px;
+}
+.cover-kicker{
+  color:var(--amber);font-style:italic;font-size:clamp(20px,2.6vw,28px);
+  letter-spacing:.06em;margin-bottom:14px;font-weight:600;
+  font-family:Georgia,"Songti SC",serif;
+  text-shadow:0 2px 18px rgba(0,0,0,.5);
+}
+.cover-title{
+  color:#f7f2e7;font-size:clamp(40px,6.5vw,72px);line-height:1.08;
+  font-weight:800;letter-spacing:-.01em;margin-bottom:18px;
+  text-shadow:0 2px 24px rgba(0,0,0,.45);
+}
+.cover-title span{color:var(--amber);}
+.cover-sub{color:#d8cfc0;font-size:clamp(14px,1.7vw,17px);margin-bottom:6px;}
+.cover-sub-en{color:#a89c8b;font-size:13px;font-style:italic;font-family:Georgia,serif;margin-bottom:22px;}
+/* 封面直达简历按钮 */
+.cover-resume{
+  display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
+  background:var(--amber);color:#1c1917;font-size:15px;font-weight:800;
+  padding:12px 28px;border-radius:999px;margin-bottom:30px;letter-spacing:.04em;
+  transition:background .15s,transform .15s;
+}
+.cover-resume:hover{background:#e8a558;transform:translateY(-2px);}
+.cover-roles{display:flex;flex-wrap:wrap;gap:12px;}
+.role-chip{
+  background:rgba(247,242,231,.1);border:1px solid rgba(247,242,231,.22);
+  backdrop-filter:blur(4px);border-radius:12px;padding:12px 18px;text-align:left;
+  transition:background .18s,border-color .18s,transform .18s;
+}
+.role-chip:hover{background:rgba(217,142,63,.22);border-color:var(--amber);transform:translateY(-2px);}
+.role-chip b{display:block;color:#f7f2e7;font-size:16px;letter-spacing:.2em;margin-bottom:4px;}
+.role-chip i{color:#b9b0a2;font-size:12px;font-style:normal;letter-spacing:.02em;}
+
+/* ========== 章节页公共布局：整页插画打底 + 左侧磨砂玻璃纸页 ========== */
+/* 注意：这里绝不能再写 position:relative——会覆盖 .page 的 absolute，
+   导致页面被内容撑高、无法滚动、背景插画随内容伸缩（v3 踩过的坑） */
+.page-chapter{gap:0;}
+.sheet{
+  position:relative;z-index:2;
+  flex:0 0 62%;min-width:0;height:100%;overflow-y:auto;
+  background:rgba(247,242,231,.82);
+  -webkit-backdrop-filter:blur(18px) saturate(1.2);
+  backdrop-filter:blur(18px) saturate(1.2);
+  padding:34px 44px 44px;
+  border-radius:0 var(--radius) var(--radius) 0;
+  border-right:1px solid rgba(255,255,255,.35);
+  box-shadow:inset 22px 0 30px -26px rgba(0,0,0,.4), 6px 0 30px rgba(0,0,0,.4);
+}
+.sheet-head{margin-bottom:8px;}
+.sheet-kicker{
+  font-family:Georgia,"Songti SC",serif;font-style:italic;
+  color:var(--amber-deep);font-size:15px;margin-bottom:6px;
+}
+.sheet h2{font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:.01em;color:#221d15;}
+.sheet-note{color:var(--muted);font-size:13.5px;margin:8px 0 20px;}
+/* 左侧深墨底 + 琥珀光晕：玻璃页后不再是死黑，而是暖色氛围 */
+.page-chapter{background:radial-gradient(ellipse 70% 80% at 18% 40%,rgba(217,142,63,.16),transparent 65%),var(--ink);}
+.art{
+  position:absolute;top:0;right:0;bottom:0;width:44%;z-index:1;overflow:hidden;
+}
+.art img{width:100%;height:100%;object-fit:cover;}
+/* 每章取景不同：竖版插画在窄容器里只露一个横带，Y 轴决定露人物哪一段 */
+.art-learn img{object-position:center 30%;}
+.art-work img{object-position:center 42%;filter:saturate(1.05) brightness(.96);}
+.art-create img{object-position:center 55%;filter:saturate(1.08);}
+/* 插画左缘与深墨底之间做柔和过渡，避免生硬切边 */
+.art::before{
+  content:"";position:absolute;inset:0 auto 0 0;width:110px;z-index:2;
+  background:linear-gradient(90deg,var(--ink),transparent);
+}
+/* 玻璃页下的插画做一次轻压暗，保证纸上文字对比度 */
+.art::after{
+  content:"";position:absolute;inset:0;z-index:1;
+  background:rgba(16,13,10,.12);
+}
+
+/* ========== 第 2 页 · 学习：书架 ========== */
+.edu-line{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+  margin-bottom:22px;
+}
+.edu-item{
+  background:#fff;border:1px solid var(--line);border-radius:10px;
+  padding:9px 14px;font-size:13.5px;color:var(--text);
+  display:inline-flex;flex-direction:column;gap:2px;
+}
+.edu-item b{color:var(--amber-deep);font-size:12px;letter-spacing:.06em;}
+.edu-arrow{color:var(--amber-deep);font-size:18px;font-weight:700;}
+.shelf{padding:8px 6px 0;}
+.books{
+  display:flex;align-items:flex-end;gap:6px;
+  min-height:190px;overflow-x:auto;padding:4px 2px 0;
+}
+.book-spine{
+  flex:0 0 auto;writing-mode:vertical-rl;
+  color:#f6f1e6;font-size:13px;font-weight:700;letter-spacing:.12em;
+  padding:16px 0;width:40px;border-radius:6px 6px 3px 3px;
+  display:flex;align-items:center;justify-content:flex-start;gap:6px;
+  box-shadow:inset -3px 0 6px rgba(0,0,0,.28), 2px 4px 10px rgba(0,0,0,.25);
+  transition:transform .18s ease, box-shadow .18s ease;
+  position:relative;
+}
+.book-spine i{ /* 书脊顶部装饰结 */
+  writing-mode:horizontal-tb;width:14px;height:14px;border-radius:50%;
+  background:rgba(255,255,255,.28);flex-shrink:0;
+}
+.book-spine:hover{transform:translateY(-10px);box-shadow:inset -3px 0 6px rgba(0,0,0,.28), 2px 14px 18px rgba(0,0,0,.35);}
+.shelf-board{
+  height:10px;border-radius:3px;margin-top:8px;
+  background:linear-gradient(180deg,#8a6a44,#5f4527);
+  box-shadow:0 8px 18px rgba(0,0,0,.4);
+}
+/* 书脊配色轮换（呼应插画暖色 + 冷点缀） */
+.spine-0{background:#5b7c99;height:180px;}
+.spine-1{background:#a4503c;height:196px;}
+.spine-2{background:#7c4a5e;height:170px;}
+.spine-3{background:#d98e3f;height:188px;}
+.spine-4{background:#4a5d4e;height:176px;}
+.spine-5{background:#31445c;height:192px;}
+.spine-6{background:#8a5a34;height:168px;}
+.spine-7{background:#5e6e52;height:184px;}
+.spine-8{background:#6d4a86;height:174px;}
+.spine-9{background:#a4503c;height:190px;}
+.spine-10{background:#2f5d5a;height:178px;}
+.spine-11{background:#8f4a3f;height:186px;}
+.spine-12{background:#c28a3e;height:172px;}
+
+/* 时间轴：书架下方的"阅读轨迹" */
+.tl{
+  margin-top:22px;padding-top:16px;border-top:1px dashed var(--line);
+  display:flex;flex-wrap:wrap;gap:8px;
+}
+.tl-item{
+  background:#fff;border:1px solid var(--line);border-left:3px solid var(--amber);
+  border-radius:8px;padding:7px 12px;font-size:12.5px;color:var(--text);
+}
+.tl-item b{color:var(--amber-deep);margin-right:6px;font-size:12px;}
+
+/* ========== 第 3 页 · 工作：项目卡片（标题 + 徽章常显，详情点按钮展开） ========== */
+.work-cards{display:flex;flex-direction:column;gap:12px;}
+.work-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 20px;display:flex;flex-direction:column;gap:9px;
+  transition:box-shadow .18s;
+}
+.work-card:hover{box-shadow:0 8px 20px rgba(31,24,14,.1);}
+.work-card h3{font-size:15.5px;font-weight:800;line-height:1.45;color:#221d15;}
+.work-card .wc-badge{
+  align-self:flex-start;display:inline-block;background:var(--amber-soft);color:var(--amber-deep);
+  border:1px solid rgba(217,142,63,.35);border-radius:999px;
+  font-size:12px;font-weight:700;padding:3px 11px;
+}
+/* 详情区默认隐藏，按钮各自开关 */
+.work-card .wc-detail{display:none;}
+.work-card.show-intro .wc-intro{display:block;}
+.work-card.show-contrib .wc-contrib{display:block;}
+.work-card .wc-detail p{font-size:13.5px;color:var(--muted);line-height:1.75;}
+.work-card .wc-detail .doc-tools{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0;}
+.work-card .wc-detail .doc-tools i{
+  font-style:normal;font-size:12px;font-weight:600;color:var(--blue);
+  background:rgba(91,124,153,.1);border:1px solid rgba(91,124,153,.3);
+  border-radius:6px;padding:3px 9px;
+}
+.work-card .wc-contrib ul{list-style:none;margin-top:6px;}
+.work-card .wc-contrib li{
+  font-size:13.5px;line-height:1.7;color:var(--text);padding-left:16px;position:relative;margin-bottom:5px;
+}
+.work-card .wc-contrib li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--amber);}
+.work-card .wc-contrib h5{
+  font-size:12.5px;color:var(--amber-deep);letter-spacing:.08em;
+  border-bottom:2px solid var(--amber);display:inline-block;padding-bottom:3px;
+}
+/* 项目简介 / 个人贡献 双开关按钮 */
+.wc-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.wc-btn{
+  cursor:pointer;font-size:12.5px;font-weight:700;color:var(--amber-deep);
+  background:var(--amber-soft);border:1px solid rgba(217,142,63,.4);
+  border-radius:999px;padding:4px 14px;letter-spacing:.03em;
+  transition:background .15s,color .15s,transform .15s;
+}
+.wc-btn:hover{transform:translateY(-1px);border-color:var(--amber);}
+.wc-btn.on{background:var(--ink);border-color:var(--ink);color:#f7f2e7;}
+
+/* 技能工具箱 */
+.skillbox{margin-top:22px;}
+.skillbox-title{font-size:13px;font-weight:800;letter-spacing:.1em;color:var(--amber-deep);margin-bottom:10px;}
+#skills{display:flex;flex-wrap:wrap;gap:14px;}
+.skill-group{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.skill-group b{font-size:12.5px;color:var(--muted);margin-right:2px;}
+.skill-group i{
+  font-style:normal;font-size:12px;font-weight:600;
+  background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--text);
+}
+
+/* ========== 第 4 页 · 创作 ========== */
+.stats{display:flex;flex-wrap:wrap;gap:26px;margin-bottom:18px;}
+.stat b{font-size:24px;font-weight:800;color:var(--amber-deep);font-family:Georgia,serif;}
+.stat span{display:block;font-size:12px;color:var(--muted);margin-top:2px;}
+.create-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.create-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px 20px;transition:transform .18s,box-shadow .18s;
+}
+.create-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(31,24,14,.12);}
+.create-card h3{font-size:15.5px;font-weight:800;margin-bottom:6px;color:#221d15;}
+.create-card .cc-tag{
+  display:inline-block;font-size:11.5px;font-weight:700;color:var(--blue);
+  letter-spacing:.06em;margin-bottom:8px;
+}
+.create-card p{font-size:13px;color:var(--muted);line-height:1.7;}
+.create-card.wide{grid-column:1 / -1;background:linear-gradient(120deg,#fff, #fbf3e4);border-color:rgba(217,142,63,.4);}
+
+/* ========== 第 5 页 · 封底 ========== */
+.page-back{align-items:center;justify-content:center;text-align:center;overflow:hidden;}
+.back-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 42%,rgba(217,142,63,.16),transparent 70%);
+}
+.back-content{position:relative;z-index:2;max-width:640px;padding:0 24px;}
+.back-title{
+  color:#f7f2e7;font-size:clamp(34px,5.5vw,58px);font-weight:800;line-height:1.15;margin-bottom:18px;
+}
+.back-sub{color:#b9b0a2;font-size:14.5px;line-height:1.8;margin-bottom:14px;}
+.back-quote{
+  color:var(--amber);font-style:italic;font-family:Georgia,"Songti SC",serif;
+  font-size:16px;margin-bottom:30px;
+}
+.back-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:26px;}
+.btn-primary{
+  background:var(--amber);color:#1c1917;font-weight:800;font-size:14.5px;
+  padding:12px 26px;border-radius:999px;transition:background .15s,transform .15s;
+}
+.btn-primary:hover{background:#e8a558;transform:translateY(-2px);}
+.btn-ghost{
+  border:1px solid rgba(247,242,231,.3);color:#f3ede2;font-weight:700;font-size:14.5px;
+  padding:12px 26px;border-radius:999px;transition:border-color .15s,background .15s;
+}
+.btn-ghost:hover{border-color:var(--amber);background:rgba(217,142,63,.1);}
+.back-contacts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.back-contacts button{
+  color:#c9c0b2;font-size:12.5px;padding:7px 14px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);transition:color .15s,border-color .15s;
+}
+/* ========== 右侧悬浮联系栏：滚到哪里都能点 ========== */
+.contact-float{
+  position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:rgba(21,18,16,.9);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1);border-right:0;
+  border-radius:14px 0 0 14px;padding:12px 8px;
+}
+.cf-label{
+  writing-mode:vertical-rl;color:#c9c0b2;font-size:12px;font-weight:700;
+  letter-spacing:.3em;margin-bottom:4px;
+}
+.cf-btn{
+  width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s,transform .15s;
+}
+.cf-btn:hover{background:rgba(217,142,63,.3);transform:translateX(-2px);}
+.cf-btn img{width:24px;height:24px;border-radius:6px;display:block;}
+.cf-mail{color:#f3ede2;font-size:18px;font-weight:700;}
+/* 创作卡片链接按钮 */
+.create-card .cc-link{
+  display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+  font-size:12.5px;font-weight:700;color:var(--amber-deep);
+  background:var(--amber-soft);border:1px solid rgba(217,142,63,.4);
+  border-radius:999px;padding:5px 14px;transition:background .15s,transform .15s;
+}
+.create-card .cc-link:hover{background:rgba(217,142,63,.28);transform:translateY(-1px);}
+
+/* ========== 页脚翻页条 ========== */
+.pagebar{
+  position:fixed;inset:auto 0 0 0;height:var(--pagebar-h);z-index:50;
+  display:flex;align-items:center;justify-content:space-between;padding:0 18px;
+  background:rgba(21,18,16,.92);backdrop-filter:blur(8px);
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.pagebar button{
+  color:#c9c0b2;font-size:13px;font-weight:700;padding:7px 14px;border-radius:8px;
+  transition:color .15s,background .15s;letter-spacing:.06em;
+}
+.pagebar button:hover{color:#f3ede2;background:rgba(255,255,255,.07);}
+.pagebar button:disabled{opacity:.3;cursor:default;}
+.page-indicator{color:#8a8175;font-size:12px;letter-spacing:.3em;}
+
+/* ========== 证书灯箱 ========== */
+#lightbox{
+  position:fixed;inset:0;z-index:90;background:rgba(12,10,8,.88);
+  display:none;align-items:center;justify-content:center;padding:4vh 4vw;cursor:zoom-out;
+}
+#lightbox.open{display:flex;}
+#lightbox img{max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,.6);}
+
+/* ========== Toast ========== */
+#toast{
+  position:fixed;left:50%;bottom:calc(var(--pagebar-h) + 18px);transform:translateX(-50%) translateY(16px);
+  background:#2a2620;color:#f7f2e7;font-size:13.5px;font-weight:600;
+  padding:10px 20px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:99;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ========== 移动端 ========== */
+@media (max-width:860px){
+  body{overflow:auto;} /* 手机上允许页面内自然滚动 */
+  .mark{display:none;} /* 手机端顶栏放不下长站名，首页即封面 */
+  .chapters{margin-left:0;}
+  .chapters button{white-space:nowrap;padding:6px 8px;font-size:12.5px;letter-spacing:.04em;}
+  .resume-pill{padding:6px 12px;font-size:12.5px;}
+  .book{position:static;padding-top:var(--topbar-h);padding-bottom:var(--pagebar-h);perspective:none;}
+  .page{position:relative;display:none;inset:auto;min-height:calc(100vh - var(--topbar-h) - var(--pagebar-h));}
+  .page.active{display:block;}
+  .page.leaving{display:none;}
+  .page-cover{min-height:calc(100vh - var(--topbar-h) - var(--pagebar-h));display:none;}
+  .page-cover.active{display:flex;}
+  .cover-content{padding:0 24px;}
+  /* 章节页：插画变顶部横幅，玻璃质感关闭 */
+  .sheet{border-radius:0;box-shadow:none;padding:24px 18px 36px;overflow:visible;height:auto;
+    flex:none;width:100%;background:var(--paper);
+    -webkit-backdrop-filter:none;backdrop-filter:none;}
+  .art{position:static;width:100%;height:200px;flex:none;}
+  .art::before{display:none;}
+  .art img{object-position:center 24%;}
+  .topbar{gap:8px;padding:0 10px;}
+  /* 悬浮栏：手机上贴右下横排，避开底部翻页条 */
+  .contact-float{
+    right:8px;left:auto;top:auto;bottom:calc(var(--pagebar-h) + 10px);transform:none;
+    flex-direction:row;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);
+  }
+  .cf-label{writing-mode:horizontal-tb;margin:0 4px 0 0;}
+  .cf-btn{width:32px;height:32px;}
+  .tools button span{display:none;} /* 声音按钮只剩圆点 */
+  .doc .doc-cols{grid-template-columns:1fr;}
+  .create-grid{grid-template-columns:1fr;}
+  .books{min-height:170px;}
+  .pagebar{position:fixed;}
+}
+
+/* JS 禁用兜底：直接平铺展示全部内容 */
+noscript ~ .book .page{display:block;position:static;}
+
+</style>
 </head>
 <body>
 
@@ -150,6 +604,456 @@
   <button class="cf-btn cf-mail" type="button" data-copy="taobi@mails.ccnu.edu.cn" data-name="邮箱" aria-label="复制邮箱：taobi@mails.ccnu.edu.cn" title="点击复制邮箱：taobi@mails.ccnu.edu.cn">✉</button>
 </div>
 
-<script src="script.js"></script>
+<!-- script.js 已内联：单文件部署 -->
+<script>
+/* ============================================================
+   闭涛 · 书式作品集  script.js
+   内容声明：以下所有数据均来自闭涛真实经历，双语对照。
+   改内容只改本文件的数组即可，页面自动重渲染。
+   ============================================================ */
+
+/* ---------- 0) 语言状态 ---------- */
+var LANG = localStorage.getItem('bitao-lang') || 'zh';
+var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- 1) 静态界面文案（中/英） ---------- */
+var I18N = {
+  'nav.home':     { zh: '首页', en: 'HOME' },
+  'nav.learn':    { zh: '学习', en: 'LEARN' },
+  'nav.work':     { zh: '项目', en: 'PROJECTS' },
+  'nav.create':   { zh: '创作', en: 'CREATE' },
+  'nav.contact':  { zh: '联系我', en: 'CONTACT' },
+  'nav.resume':   { zh: '个人简历', en: 'Resume' },
+  'nav.soundOff': { zh: '声音 关', en: 'Sound off' },
+  'nav.soundOn':  { zh: '声音 开', en: 'Sound on' },
+  'nav.prev':     { zh: '上一页', en: 'Prev' },
+  'nav.next':     { zh: '下一页', en: 'Next' },
+  'cover.kicker': { zh: '欢迎来到我的世界', en: 'Welcome to my world' },
+  'cover.sub':    { zh: '本科 · 华中师范大学信息管理学院 ｜ 已保研至南京大学信息管理学院', en: 'Undergrad · School of Information Management, CCNU ｜ Guaranteed admission to Nanjing University' },
+  'cover.subEn':  { zh: '我是一名学生、一名分析师，也是一名创作者。', en: "I'm a student, an analyst, and a creator." },
+  'cover.resume': { zh: '📄 查看完整简历', en: '📄 View full resume' },
+  'role.learn':   { zh: '学习', en: 'STUDENT' },
+  'role.work':    { zh: '工作', en: 'PROFESSIONAL' },
+  'role.create':  { zh: '创作', en: 'CREATOR' },
+  'learn.title':  { zh: '学习档案 · 书架', en: 'Learning archive · Bookshelf' },
+  'learn.note':   { zh: '我的教育经历，与书架上的 13 本「证书之书」。点击书脊，翻阅扫描件。', en: 'My education, and 13 certificate-books on the shelf. Click a spine to read the scan.' },
+  'learn.bachelor': { zh: '本科', en: 'BACHELOR' },
+  'learn.master':   { zh: '硕士（已保研）', en: 'MASTER (recommended)' },
+  'work.title':     { zh: '项目档案', en: 'Project archive' },
+  'work.note':      { zh: '7 段项目经历：默认只露标题与成果徽章，点「项目简介 / 个人贡献」展开详情。', en: '7 projects: titles and badges by default; expand with the buttons below each card.' },
+  'work.skillsTitle': { zh: '技能工具箱', en: 'Toolbox' },
+  'work.introBtn':  { zh: '项目简介', en: 'About' },
+  'work.contribBtn':{ zh: '个人贡献', en: 'My work' },
+  'work.intro':   { zh: '项目简介', en: 'About the project' },
+  'work.handled': { zh: '个人贡献', en: 'What I handled' },
+  'create.title': { zh: '创作档案', en: 'Creating archive' },
+  'back.title':   { zh: '下一章，写什么？', en: "What's the next chapter?" },
+  'back.sub':     { zh: '我对运营、产品与数据交叉领域的机会保持开放，期待用「看数据说话 + 做内容增长」帮团队把事情做扎实。', en: "Open to roles across operations, product and data. I bring evidence-based analysis and content growth that gets things done." },
+  'back.quote':   { zh: '也许，我们可以一起写下它。', en: 'Maybe we can write it together.' },
+  'back.resume':  { zh: '阅读完整简历', en: 'Read the resume' },
+  'page.indicator': { zh: '页 {n} / {t}', en: 'Page {n} of {t}' }
+};
+function t(key){ return I18N[key] ? I18N[key][LANG] : key; }
+
+/* ---------- 2) 证书书架（13 本，顺序与 images/cert-XX.jpg 对应） ---------- */
+var CERTS = [
+  { img:'cert-01.jpg', spine:'三创赛全国一等奖',   zh:'三创赛 · 全国一等奖',        en:'"ICE" Challenge · Grand Prize',       sub:{ zh:'第十六届「创新、创意及创业」挑战赛 · 商务大数据分析赛道', en:'16th Innovation, Creativity & Entrepreneurship Challenge, Business Big-Data track' } },
+  { img:'cert-02.jpg', spine:'美赛 H 奖',         zh:'美国大学生数学建模竞赛',      en:'MCM/ICM · Honorable Mention',          sub:{ zh:'Honorable Mention（H 奖）· 国际级', en:'Honorable Mention · international' } },
+  { img:'cert-03.jpg', spine:'案例大赛收录',       zh:'全国信息资源管理案例大赛',    en:'RUC Case Competition · Accepted',      sub:{ zh:'第四届 · 案例收录（负责人）', en:'4th edition, case accepted (team leader)' } },
+  { img:'cert-04.jpg', spine:'大创结项',           zh:'大学生创新创业训练计划',      en:'National Innovation Program',          sub:{ zh:'国家级 A 类 · 结项证书', en:'National level A, concluded' } },
+  { img:'cert-05.jpg', spine:'计算机三级',         zh:'全国计算机等级考试 三级',     en:'NCRE Level 3',                         sub:{ zh:'数据库技术', en:'Database technology' } },
+  { img:'cert-06.jpg', spine:'计算机四级',         zh:'全国计算机等级考试 四级',     en:'NCRE Level 4',                         sub:{ zh:'数据库工程师', en:'Database engineer' } },
+  { img:'cert-07.jpg', spine:'软考中级',           zh:'软考 · 中级（数据库）',       en:'Soft Exam · Intermediate (DB)',        sub:{ zh:'计算机技术与软件专业技术资格', en:'National IT professional qualification' } },
+  { img:'cert-08.jpg', spine:'英语六级',           zh:'大学英语六级（CET-6）',       en:'CET-6',                                sub:{ zh:'总分 501 · 2024.12', en:'Score 501 · Dec 2024' } },
+  { img:'cert-09.jpg', spine:'博雅丹桂奖学金',     zh:'博雅丹桂奖学金',             en:'Boya Dangui Scholarship',              sub:{ zh:'2025 · 校级（前 10%）', en:'2025 · university, top 10%' } },
+  { img:'cert-10.jpg', spine:'少数民族优秀奖学金', zh:'少数民族优秀学生奖学金',      en:'Minority Excellence Scholarship',      sub:{ zh:'2025 · 校级', en:'2025 · university' } },
+  { img:'cert-11.jpg', spine:'三好学生',           zh:'校级三好学生',               en:'Merit Student',                        sub:{ zh:'2025', en:'2025' } },
+  { img:'cert-12.jpg', spine:'学习积极分子',       zh:'校级学习积极分子',           en:'Learning Pacesetter',                  sub:{ zh:'2024', en:'2024' } },
+  { img:'cert-13.jpg', spine:'优秀共青团员',       zh:'校级优秀共青团员',           en:'Outstanding CYL Member',               sub:{ zh:'2025', en:'2025' } }
+];
+
+/* ---------- 3) 时间轴（改这里即可增删节点） ---------- */
+var TIMELINE = [
+  { date:'2026.09', zh:'保研至南京大学（985）信息管理学院', en:'Guaranteed admission to Nanjing University (985)' },
+  { date:'2026.08', zh:'三创赛 · 商务大数据分析赛道全国一等奖', en:'Grand Prize, Business Big-Data track ("ICE" Challenge)' },
+  { date:'2026.01', zh:'美国大学生数学建模竞赛（MCM/ICM）· H 奖', en:'MCM/ICM · Honorable Mention' },
+  { date:'2026.01', zh:'全国信息资源管理案例大赛 · 案例收录（负责人）', en:'RUC Case Competition · case accepted (leader)' },
+  { date:'2024.12', zh:'国家级大学生创新创业训练计划 · 结项', en:'National Innovation Training Program · concluded' },
+  { date:'2024-2025 学年', zh:'博雅丹桂奖学金 · 校级三好学生', en:'Boya Dangui Scholarship · Merit Student' }
+];
+
+/* ---------- 4) 项目文档（7 段经历） ---------- */
+var PROJECTS = [
+  {
+    title:{ zh:'虚实交锋：直播电商数字人直播数据分析与成效研究', en:'Virtual vs. Real: Data Analysis of AI-anchor Livestream E-commerce' },
+    badge:{ zh:'🏆 全国一等奖 · 核心成员（A 类赛事）', en:'🏆 Grand Prize (national 1st) · Core member (Category A)' },
+    intro:{ zh:'全国大学生电子商务「创新、创意及创业」挑战赛（A 类赛事）商务大数据分析赛道：围绕直播电商数字人主播，构建数字人与真人直播的多模态特征体系，分析话术特征与直播间热度的关联，为数字人直播运营提供数据支撑。', en:'For the "Innovation, Creativity & Entrepreneurship" Challenge (Cat. A), Business Big-Data track: built a multimodal feature system comparing AI digital-human anchors with human hosts, linking speech patterns to livestream popularity to guide operations.' },
+    tools:['Qwen3-ASR','RoBERTa-wwm-ext','时间序列分析'],
+    bullets:{ zh:['用 Qwen3-ASR 转写直播语音话术','RoBERTa-wwm-ext 微调完成文本分析','对齐互动行为与热度的时间序列','输出可解释的运营建议'], en:['Transcribed livestream speech with Qwen3-ASR','Fine-tuned RoBERTa-wwm-ext for text analysis','Aligned interaction events with popularity time series','Delivered interpretable operations suggestions'] }
+  },
+  {
+    title:{ zh:'基于交流意图识别的学术话语分析框架构建与应用', en:'Academic Discourse Analysis via Communicative Intent Detection' },
+    badge:{ zh:'✍️ 第二作者 · 已录用《情报科学》', en:'✍️ 2nd author · accepted by Information Science' },
+    intro:{ zh:'针对人工话语分析效率低、规模受限、可复现性差的问题，构建基于交流意图识别的学术话语分析框架：融合弱监督学习与数据增强，自动挖掘多学科话语模式，并在图书情报与管理信息系统两学科语料（6 刊 5247 篇）上完成实证。', en:'Built a discourse-analysis framework based on communicative intent detection, combining weak supervision and data augmentation; empirically validated on LIS and MIS corpora (6 journals, 5,247 papers).' },
+    tools:['弱监督学习','数据增强','SciBERT'],
+    bullets:{ zh:['负责语料清洗与数据预处理','参与交流意图识别模型（SciBERT 微调）的训练与效果评估'], en:['Led corpus cleaning and data preprocessing','Co-trained and evaluated the SciBERT-based intent detection model'] }
+  },
+  {
+    title:{ zh:'大语言模型驱动的学科话语模式分析方法', en:'LLM-driven Analysis of Disciplinary Discourse Patterns' },
+    badge:{ zh:'✍️ 第二作者（导师一作）· 成稿阶段', en:'✍️ 2nd author (advisor first) · in final drafting' },
+    intro:{ zh:'将「修辞语步」视为交流意图，用大模型辅助生成的数据微调 Qwen3-8B，识别论文引言的句子级交流意图，从意图分布与意图转移两方面刻画学科话语模式；发现学科可分为生命、社会、数理三大群组并呈组内趋近、组间远离的演化趋势。', en:'Treats rhetorical moves as communicative intents: fine-tuned Qwen3-8B on LLM-augmented data to detect sentence-level intents in paper introductions, revealing three disciplinary clusters converging within and diverging across groups.' },
+    tools:['Qwen3-8B','SFT / DPO','Label-Studio'],
+    bullets:{ zh:['参与微调语料构建','完成 Qwen3-8B 的 SFT / DPO 训练','搭建 Label-Studio 标注流水线','完成识别结果分析'], en:['Co-built the fine-tuning corpus','Ran SFT / DPO training of Qwen3-8B','Built the Label-Studio annotation pipeline','Analyzed detection results'] }
+  },
+  {
+    title:{ zh:'数据筑基，AI 赋能：城市更新数据资源建设体系与活化路径调研——以「武汉云」为例', en:'Data Foundation, AI Empowerment: Urban Renewal Data Resources — the "Wuhan Cloud" Case' },
+    badge:{ zh:'📚 中国人民大学信息资源管理案例大赛 · 案例收录', en:'📚 RUC Information Resource Management Case Competition · accepted' },
+    intro:{ zh:'调研「武汉云」城市数据资源体系建设实践，系统梳理其数据归集、治理与活化路径，撰写教学案例与分析报告，被中国人民大学信息资源管理案例大赛收录入库。', en:'Investigated the "Wuhan Cloud" urban data resource system; systematically mapped its data collection, governance and activation paths into a teaching case accepted into the RUC case library.' },
+    tools:['实地调研','案例研究','报告撰写'],
+    bullets:{ zh:['作为团队负责人带队完成企业调研','主导案例框架设计与撰写','统筹投稿与收录全流程'], en:['Led the team through enterprise field research','Designed the case framework and drafted the report','Managed submission and acceptance end to end'] }
+  },
+  {
+    title:{ zh:'从网页搜索到对话交互：大语言模型对大学生观点极化感知的影响调研', en:'From Web Search to Dialogue: LLMs and Perceived Opinion Polarization' },
+    badge:{ zh:'📝 第一作者 · 市场调研课程论文', en:'📝 First author · market research course paper' },
+    intro:{ zh:'采用组间实验（N=30）对比网页搜索、无引用与带引用 LLM 对话搜索对大学生观点极化的影响；发现 LLM 对话更易诱导确认性提问，「来源引用」反而增强了用户对立场一致信息的选择性信任。', en:'A between-subjects experiment (N=30) comparing web search, citation-free and cited LLM chat; found LLM dialogue induces confirmatory questioning, and source citations ironically strengthen selective trust in stance-consistent information.' },
+    tools:['组间实验','问卷调查','统计分析'],
+    bullets:{ zh:['独立完成实验设计与被试招募','执行数据收集与统计分析','完成论文写作（第一作者）'], en:['Designed the experiment and recruited participants','Ran data collection and statistical analysis','Wrote the paper as first author'] }
+  },
+  {
+    title:{ zh:'信管升学信息资源组织系统设计方案', en:'Knowledge-Graph-based Graduate Admission Info System (course project)' },
+    badge:{ zh:'🎓 「信息组织」课程设计 · 核心成员', en:'🎓 Information Organization course project · core member' },
+    intro:{ zh:'面向信管学生升学信息获取场景，完成系统整体设计：用户需求分析、资源描述与元数据设计、等级体系分类与分面组配设计，并以知识图谱组织升学信息资源。', en:'End-to-end system design for graduate-admission information needs: requirement analysis, metadata and classification scheme design, with a knowledge graph organizing the resources.' },
+    tools:['知识图谱','本体设计','可视化'],
+    bullets:{ zh:['设计领域本体与实体关系','完成图谱数据组织与可视化落地'], en:['Designed the domain ontology and entity relations','Built the graph data organization and visualization'] }
+  },
+  {
+    title:{ zh:'遗脉智新：非遗数字化传承创新项目策划', en:'Heritage Renewed: ICH Digitization Business Plan' },
+    badge:{ zh:'🏅 三创赛常规赛道 · 校级一等奖成员', en:'🏅 "ICE" Challenge regular track · school-level 1st prize member' },
+    intro:{ zh:'面向非遗文化传承与活化，以「数刻文脉」团队完成商业化项目策划：产品定位、用户需求分析、服务设计与落地路径规划。', en:'A commercialization plan for intangible cultural heritage revitalization: product positioning, user research, service design and rollout planning with the "ShuKe WenMai" team.' },
+    tools:['用户调研','产品原型','服务设计'],
+    bullets:{ zh:['独立完成需求分析与产品原型设计','把用户调研结论转化为可演示的交互原型'], en:['Ran requirement analysis and prototype design','Turned research findings into a demonstrable interactive prototype'] }
+  }
+];
+
+/* ---------- 5) 技能工具箱 ---------- */
+var SKILLS = [
+  { cat:{ zh:'数据 & 大模型', en:'Data & LLM' },      items:['SQL','Python','文本挖掘','RoBERTa / Qwen3-8B 微调（SFT / DPO）','SHAP 可解释分析','Label-Studio 数据流水线'] },
+  { cat:{ zh:'Agent & 看板', en:'Agent & BI' },       items:['Coze Agent 搭建','FineBI 数据看板'] },
+  { cat:{ zh:'内容 & 运营', en:'Content & Ops' },     items:['短视频脚本（20+ 条）','剪映','抖音内容运营','小红书自媒体'] },
+  { cat:{ zh:'研究 & 协作', en:'Research & Collab' }, items:['实验设计与统计分析','用户调研与需求分析','知识图谱与本体设计'] }
+];
+
+/* ---------- 6) 创作档案 ---------- */
+var CREATE_STATS = [
+  { num:'20+',    zh:'短视频脚本',   en:'video scripts' },
+  { num:'2,600+', zh:'单条最高点赞', en:'likes, top video' },
+  { num:'13+',    zh:'网站版本迭代', en:'website iterations' },
+  { num:'2',      zh:'内容平台运营', en:'content platforms' }
+];
+var CREATE = [
+  { tag:{ zh:'产品设计 · UniPlan 大学计', en:'Product design · UniPlan' }, title:{ zh:'UniPlan 大学计 APP 设计', en:'UniPlan — campus life planner app' }, desc:{ zh:'独立完成 28 页用户体验设计报告：需求调研（150 份问卷）、KANO 模型分析、五模块原型设计与用户测评方案——一款用 AI 把碎片通知变成结构化日程的校园生活管理 App。', en:'Authored a 28-page UX design report: user research (150 responses), KANO analysis, five-module prototype design and an evaluation plan — an AI-powered campus life planner.' }, link:'uniplan-report.pdf', linkText:{ zh:'阅读设计报告', en:'Read the report' } },
+  { tag:{ zh:'个人主页 · Vibe Coding', en:'Homepage · Vibe Coding' }, title:{ zh:'这本可以翻的作品集', en:'A portfolio you can flip' }, desc:{ zh:'你正在读的这本书：纯手写零依赖三件套（HTML/CSS/JS），双语翻页交互、证书书架、WebAudio 合成翻页声，Git 全程版本管理。', en:'The book you are reading: hand-coded zero-dependency HTML/CSS/JS, bilingual page-flip interaction, a certificate bookshelf and WebAudio flip sounds.' }, wide:true },
+  { tag:{ zh:'抖音 · 内容运营', en:'Douyin · Operations' }, title:{ zh:'招生抖音号内容运营', en:'Douyin recruitment account' }, desc:{ zh:'负责选题策划、脚本撰写与数据复盘，单条视频最高 2,600+ 赞。', en:'Topic planning, scriptwriting and data review; top video earned 2,600+ likes.' } },
+  { tag:{ zh:'小红书 · 自媒体', en:'Xiaohongshu · Self-media' }, title:{ zh:'小红书自媒体运营', en:'Xiaohongshu self-media' }, desc:{ zh:'图文内容创作与账号运营，探索「数据选题材、内容做增长」的打法。', en:'Creating image-text content and growing the account with a data-informed approach.' } },
+  { tag:{ zh:'短视频 · 创作', en:'Short video · Creation' }, title:{ zh:'短视频脚本与剪辑', en:'Scripts & editing' }, desc:{ zh:'累计撰写 20+ 条短视频脚本，熟悉剪映全流程剪辑。', en:'20+ short-video scripts written; full editing workflow in Jianying (CapCut).' } }
+];
+
+/* ---------- 7) 渲染：书架 ---------- */
+function renderBooks(){
+  var box = document.getElementById('books');
+  if (!box) return;
+  box.innerHTML = '';
+  CERTS.forEach(function(c, i){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'book-spine spine-' + i;
+    b.innerHTML = '<i></i>' + c.spine;
+    b.setAttribute('aria-label', c.zh + '，点击放大查看');
+    b.addEventListener('click', function(){
+      document.getElementById('lightboxImg').src = 'images/' + c.img;
+      document.getElementById('lightboxImg').alt = c.zh;
+      document.getElementById('lightbox').classList.add('open');
+      playFlip(.6);
+    });
+    box.appendChild(b);
+  });
+}
+
+/* ---------- 8) 渲染：时间轴 ---------- */
+function renderTimeline(){
+  var box = document.getElementById('timeline');
+  if (!box) return;
+  box.innerHTML = '';
+  TIMELINE.forEach(function(item){
+    var el = document.createElement('span');
+    el.className = 'tl-item';
+    el.innerHTML = '<b>' + item.date + '</b>' + (LANG === 'en' ? item.en : item.zh);
+    box.appendChild(el);
+  });
+}
+
+/* ---------- 9) 渲染：项目卡片（标题+徽章常显，简介/贡献双开关展开） ---------- */
+function renderWorkCards(){
+  var box = document.getElementById('workCards');
+  if (!box) return;
+  box.innerHTML = '';
+  PROJECTS.forEach(function(p, i){
+    var card = document.createElement('article');
+    card.className = 'work-card';
+    var bullets = (LANG === 'en' ? p.bullets.en : p.bullets.zh).map(function(s){ return '<li>' + s + '</li>'; }).join('');
+    var tools = p.tools.map(function(s){ return '<i>' + s + '</i>'; }).join('');
+    card.innerHTML =
+      '<h3>' + p.title[LANG] + '</h3>' +
+      '<span class="wc-badge">' + p.badge[LANG] + '</span>' +
+      '<div class="wc-actions">' +
+        '<button type="button" class="wc-btn" data-toggle="show-intro" aria-expanded="false">' + t('work.introBtn') + ' ▾</button>' +
+        '<button type="button" class="wc-btn" data-toggle="show-contrib" aria-expanded="false">' + t('work.contribBtn') + ' ▾</button>' +
+      '</div>' +
+      '<div class="wc-detail wc-intro"><p>' + p.intro[LANG] + '</p><div class="doc-tools">' + tools + '</div></div>' +
+      '<div class="wc-detail wc-contrib"><h5>' + t('work.handled') + '</h5><ul>' + bullets + '</ul></div>';
+    card.querySelectorAll('.wc-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var cls = btn.getAttribute('data-toggle');
+        var open = card.classList.toggle(cls);
+        btn.classList.toggle('on', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.textContent = btn.textContent.replace(/ [▾▴]$/, open ? ' ▴' : ' ▾');
+        playFlip(.35);
+      });
+    });
+    box.appendChild(card);
+  });
+}
+
+/* ---------- 10) 渲染：技能 ---------- */
+function renderSkills(){
+  var box = document.getElementById('skills');
+  if (!box) return;
+  box.innerHTML = '';
+  SKILLS.forEach(function(g){
+    var el = document.createElement('div');
+    el.className = 'skill-group';
+    var items = g.items.map(function(s){ return '<i>' + s + '</i>'; }).join('');
+    el.innerHTML = '<b>' + g.cat[LANG] + '</b>' + items;
+    box.appendChild(el);
+  });
+}
+
+/* ---------- 11) 渲染：创作档案 ---------- */
+function renderCreate(){
+  var stats = document.getElementById('createStats');
+  if (stats){
+    stats.innerHTML = CREATE_STATS.map(function(s){
+      return '<div class="stat"><b>' + s.num + '</b><span>' + (LANG === 'en' ? s.en : s.zh) + '</span></div>';
+    }).join('');
+  }
+  var grid = document.getElementById('createGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  CREATE.forEach(function(c){
+    var el = document.createElement('div');
+    el.className = 'create-card' + (c.wide ? ' wide' : '');
+    var link = c.link ? '<a class="cc-link" href="' + c.link + '" target="_blank">' + c.linkText[LANG] + ' ↗</a>' : '';
+    el.innerHTML = '<span class="cc-tag">' + c.tag[LANG] + '</span><h3>' + c.title[LANG] + '</h3><p>' + c.desc[LANG] + '</p>' + link;
+    grid.appendChild(el);
+  });
+}
+
+/* ---------- 12) 悬浮联系栏：点击复制 ---------- */
+function bindContactFloat(){
+  document.querySelectorAll('.cf-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      copyText(b.getAttribute('data-copy'), b.getAttribute('data-name'));
+    });
+  });
+}
+
+/* ---------- 12) 渲染：封底联系方式 ---------- */
+var CONTACTS = [
+  { label:{ zh:'QQ：970034813', en:'QQ 970034813' }, copy:'970034813' },
+  { label:{ zh:'微信：Sisyphus2026-wh', en:'WeChat Sisyphus2026-wh' }, copy:'Sisyphus2026-wh' },
+  { label:{ zh:'邮箱：taobi@mails.ccnu.edu.cn', en:'taobi@mails.ccnu.edu.cn' }, copy:'taobi@mails.ccnu.edu.cn' }
+];
+function renderContacts(){
+  var box = document.getElementById('backContacts');
+  if (!box) return;
+  box.innerHTML = '';
+  CONTACTS.forEach(function(c){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = c.label[LANG];
+    b.addEventListener('click', function(){ copyText(c.copy, c.copy); });
+    box.appendChild(b);
+  });
+}
+
+/* ---------- 13) 静态 UI 文案应用 ---------- */
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    el.innerHTML = t(el.getAttribute('data-i18n'));
+  });
+  document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
+  document.title = LANG === 'en' ? 'Bitao Bi · Portfolio' : '闭涛 · 个人作品集';
+  document.getElementById('langBtn').textContent = LANG === 'en' ? '中文' : 'EN';
+  renderTimeline(); renderWorkCards(); renderSkills(); renderCreate(); renderContacts(); renderIndicator();
+}
+
+/* ---------- 14) 翻页逻辑 ---------- */
+var PAGES = ['page-0','page-1','page-2','page-3','page-4'];
+var current = 0;
+function goTo(n, silent){
+  n = Math.max(0, Math.min(PAGES.length - 1, n));
+  var changed = n !== current;
+  var oldEl = changed ? document.getElementById(PAGES[current]) : null;
+  var newEl = document.getElementById(PAGES[n]);
+  // 兜底清理：无论 current 状态是否正确，先把所有非目标页的 active/leaving 全部摘掉
+  PAGES.forEach(function(id, i){
+    if (i === n) return;
+    var el = document.getElementById(id);
+    el.classList.remove('active');
+    if (el !== oldEl) el.classList.remove('leaving');
+  });
+  if (changed && oldEl && !REDUCE){
+    oldEl.classList.add('leaving');
+    setTimeout(function(){ oldEl.classList.remove('leaving','active'); }, 450);
+  } else if (oldEl){
+    oldEl.classList.remove('active');
+  }
+  newEl.classList.add('active');
+  current = n;
+  renderIndicator();
+  updateChapters();
+  location.hash = ['cover','learn','work','create','back'][n];
+  var sheet = newEl.querySelector('.sheet');
+  if (sheet) sheet.scrollTop = 0;
+  if (!silent) playFlip(1);
+}
+function renderIndicator(){
+  var el = document.getElementById('pageIndicator');
+  if (el) el.textContent = t('page.indicator').replace('{n}', current + 1).replace('{t}', PAGES.length);
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === PAGES.length - 1;
+}
+function updateChapters(){
+  document.querySelectorAll('.chapters button').forEach(function(b){
+    b.classList.toggle('on', Number(b.getAttribute('data-ch')) === current);
+  });
+}
+
+/* ---------- 15) 翻页音效：WebAudio 合成，无音频文件 ---------- */
+var audioCtx = null, soundOn = localStorage.getItem('bitao-sound') === 'on';
+function playFlip(vol){
+  if (!soundOn) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    var dur = 0.18, rate = audioCtx.sampleRate;
+    var buf = audioCtx.createBuffer(1, rate * dur, rate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < d.length; i++){
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2); // 衰减噪声 → 纸张摩擦感
+    }
+    var src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    var filter = audioCtx.createBiquadFilter();
+    filter.type = 'bandpass'; filter.frequency.value = 1400; filter.Q.value = 0.8;
+    var gain = audioCtx.createGain();
+    gain.gain.value = 0.12 * (vol || 1);
+    src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+    src.start();
+  }catch(e){ /* 音频不可用则静默跳过 */ }
+}
+function initSoundBtn(){
+  var btn = document.getElementById('soundBtn');
+  btn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  btn.querySelector('span').textContent = soundOn ? t('nav.soundOn') : t('nav.soundOff');
+  btn.addEventListener('click', function(){
+    soundOn = !soundOn;
+    localStorage.setItem('bitao-sound', soundOn ? 'on' : 'off');
+    btn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+    btn.querySelector('span').textContent = soundOn ? t('nav.soundOn') : t('nav.soundOff');
+    if (soundOn) playFlip(1);
+  });
+}
+
+/* ---------- 16) 复制文本（clipboard API + 降级） ---------- */
+function fallbackCopy(val){
+  var ta = document.createElement('textarea');
+  ta.value = val; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  var ok = false;
+  try{ ok = document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+  return ok;
+}
+function copyText(val, label){
+  function ok(){ showToast((LANG === 'en' ? 'Copied: ' : '已复制：') + label + ' ✓'); }
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(val).then(ok, function(){
+      showToast(fallbackCopy(val) ? ok() : (LANG === 'en' ? 'Copy blocked: ' : '浏览器拦截了复制：') + val);
+    });
+  } else {
+    showToast(fallbackCopy(val) ? ok() : (LANG === 'en' ? 'Copy blocked: ' : '浏览器拦截了复制：') + val);
+  }
+}
+var toastTimer = null;
+function showToast(msg){
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+
+/* ---------- 17) 事件绑定 ---------- */
+document.querySelectorAll('[data-go]').forEach(function(el){
+  el.addEventListener('click', function(){ goTo(Number(el.getAttribute('data-go'))); });
+});
+document.getElementById('prevBtn').addEventListener('click', function(){ goTo(current - 1); });
+document.getElementById('nextBtn').addEventListener('click', function(){ goTo(current + 1); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'ArrowRight') goTo(current + 1);
+  if (e.key === 'ArrowLeft') goTo(current - 1);
+});
+/* 手机滑动翻页 */
+var touchX = null;
+document.addEventListener('touchstart', function(e){ touchX = e.touches[0].clientX; }, { passive:true });
+document.addEventListener('touchend', function(e){
+  if (touchX === null) return;
+  var dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 60) goTo(current + (dx < 0 ? 1 : -1));
+  touchX = null;
+}, { passive:true });
+/* 灯箱关闭 */
+document.getElementById('lightbox').addEventListener('click', function(){
+  this.classList.remove('open');
+});
+/* 封底 Email：mailto + 复制双保险 */
+document.getElementById('emailBtn').addEventListener('click', function(){
+  copyText('taobi@mails.ccnu.edu.cn', 'taobi@mails.ccnu.edu.cn');
+  window.location.href = 'mailto:taobi@mails.ccnu.edu.cn';
+});
+/* 语言切换 */
+document.getElementById('langBtn').addEventListener('click', function(){
+  LANG = LANG === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('bitao-lang', LANG);
+  applyI18n(); initSoundBtn(); playFlip(1);
+});
+/* 哈希路由：刷新/直达某章 */
+function fromHash(){
+  var idx = ['cover','learn','work','create','back'].indexOf(location.hash.replace('#',''));
+  if (idx > 0) goTo(idx, true);  // 不再强行 current=0：由 goTo 内部清理所有页面状态
+}
+window.addEventListener('hashchange', fromHash);
+
+/* ---------- 18) 启动 ---------- */
+applyI18n();
+renderBooks();
+bindContactFloat();
+initSoundBtn();
+document.getElementById('page-0').classList.add('active');
+updateChapters();
+renderIndicator();
+fromHash();
+
+</script>
 </body>
 </html>
