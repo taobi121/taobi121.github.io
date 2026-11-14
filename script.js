@@ -10,17 +10,20 @@ var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- 1) 静态界面文案（中/英） ---------- */
 var I18N = {
+  'nav.home':     { zh: '首页', en: 'HOME' },
   'nav.learn':    { zh: '学习', en: 'LEARN' },
-  'nav.work':     { zh: '工作', en: 'WORK' },
+  'nav.work':     { zh: '项目', en: 'PROJECTS' },
   'nav.create':   { zh: '创作', en: 'CREATE' },
+  'nav.contact':  { zh: '联系我', en: 'CONTACT' },
   'nav.resume':   { zh: '简历', en: 'Resume' },
   'nav.soundOff': { zh: '声音 关', en: 'Sound off' },
   'nav.soundOn':  { zh: '声音 开', en: 'Sound on' },
   'nav.prev':     { zh: '上一页', en: 'Prev' },
   'nav.next':     { zh: '下一页', en: 'Next' },
   'cover.kicker': { zh: '欢迎来到我的世界', en: 'Welcome to my world' },
-  'cover.sub':    { zh: '信息管理与信息系统在读 · 数据分析 × 内容运营 · 已保研南京大学', en: 'IM & Information Systems undergrad · Data × Content · Guaranteed admission to Nanjing University' },
+  'cover.sub':    { zh: '本科 · 华中师范大学信息管理学院 ｜ 已保研至南京大学信息管理学院', en: 'Undergrad · School of Information Management, CCNU ｜ Guaranteed admission to Nanjing University' },
   'cover.subEn':  { zh: '我是一名学生、一名分析师，也是一名创作者。', en: "I'm a student, an analyst, and a creator." },
+  'cover.resume': { zh: '📄 查看完整简历', en: '📄 View full resume' },
   'role.learn':   { zh: '学习', en: 'STUDENT' },
   'role.work':    { zh: '工作', en: 'PROFESSIONAL' },
   'role.create':  { zh: '创作', en: 'CREATOR' },
@@ -28,8 +31,11 @@ var I18N = {
   'learn.note':   { zh: '我的教育经历，与书架上的 13 本「证书之书」。点击书脊，翻阅扫描件。', en: 'My education, and 13 certificate-books on the shelf. Click a spine to read the scan.' },
   'learn.bachelor': { zh: '本科', en: 'BACHELOR' },
   'learn.master':   { zh: '硕士（已保研）', en: 'MASTER (recommended)' },
-  'work.title':     { zh: '工作档案 · 项目文档', en: 'Professional archive · Project documents' },
+  'work.title':     { zh: '项目档案', en: 'Project archive' },
+  'work.note':      { zh: '7 段项目经历：默认只露标题与成果徽章，点「项目简介 / 个人贡献」展开详情。', en: '7 projects: titles and badges by default; expand with the buttons below each card.' },
   'work.skillsTitle': { zh: '技能工具箱', en: 'Toolbox' },
+  'work.introBtn':  { zh: '项目简介', en: 'About' },
+  'work.contribBtn':{ zh: '个人贡献', en: 'My work' },
   'work.intro':   { zh: '项目简介', en: 'About the project' },
   'work.handled': { zh: '个人贡献', en: 'What I handled' },
   'create.title': { zh: '创作档案', en: 'Creating archive' },
@@ -72,7 +78,6 @@ var TIMELINE = [
 /* ---------- 4) 项目文档（7 段经历） ---------- */
 var PROJECTS = [
   {
-    tab:{ zh:'经历 01', en:'Exp 01' },
     title:{ zh:'虚实交锋：直播电商数字人直播数据分析与成效研究', en:'Virtual vs. Real: Data Analysis of AI-anchor Livestream E-commerce' },
     badge:{ zh:'🏆 全国一等奖 · 核心成员（A 类赛事）', en:'🏆 Grand Prize (national 1st) · Core member (Category A)' },
     intro:{ zh:'全国大学生电子商务「创新、创意及创业」挑战赛（A 类赛事）商务大数据分析赛道：围绕直播电商数字人主播，构建数字人与真人直播的多模态特征体系，分析话术特征与直播间热度的关联，为数字人直播运营提供数据支撑。', en:'For the "Innovation, Creativity & Entrepreneurship" Challenge (Cat. A), Business Big-Data track: built a multimodal feature system comparing AI digital-human anchors with human hosts, linking speech patterns to livestream popularity to guide operations.' },
@@ -80,7 +85,6 @@ var PROJECTS = [
     bullets:{ zh:['用 Qwen3-ASR 转写直播语音话术','RoBERTa-wwm-ext 微调完成文本分析','对齐互动行为与热度的时间序列','输出可解释的运营建议'], en:['Transcribed livestream speech with Qwen3-ASR','Fine-tuned RoBERTa-wwm-ext for text analysis','Aligned interaction events with popularity time series','Delivered interpretable operations suggestions'] }
   },
   {
-    tab:{ zh:'经历 02', en:'Exp 02' },
     title:{ zh:'基于交流意图识别的学术话语分析框架构建与应用', en:'Academic Discourse Analysis via Communicative Intent Detection' },
     badge:{ zh:'✍️ 第二作者 · 已录用《情报科学》', en:'✍️ 2nd author · accepted by Information Science' },
     intro:{ zh:'针对人工话语分析效率低、规模受限、可复现性差的问题，构建基于交流意图识别的学术话语分析框架：融合弱监督学习与数据增强，自动挖掘多学科话语模式，并在图书情报与管理信息系统两学科语料（6 刊 5247 篇）上完成实证。', en:'Built a discourse-analysis framework based on communicative intent detection, combining weak supervision and data augmentation; empirically validated on LIS and MIS corpora (6 journals, 5,247 papers).' },
@@ -88,7 +92,6 @@ var PROJECTS = [
     bullets:{ zh:['负责语料清洗与数据预处理','参与交流意图识别模型（SciBERT 微调）的训练与效果评估'], en:['Led corpus cleaning and data preprocessing','Co-trained and evaluated the SciBERT-based intent detection model'] }
   },
   {
-    tab:{ zh:'经历 03', en:'Exp 03' },
     title:{ zh:'大语言模型驱动的学科话语模式分析方法', en:'LLM-driven Analysis of Disciplinary Discourse Patterns' },
     badge:{ zh:'✍️ 第二作者（导师一作）· 成稿阶段', en:'✍️ 2nd author (advisor first) · in final drafting' },
     intro:{ zh:'将「修辞语步」视为交流意图，用大模型辅助生成的数据微调 Qwen3-8B，识别论文引言的句子级交流意图，从意图分布与意图转移两方面刻画学科话语模式；发现学科可分为生命、社会、数理三大群组并呈组内趋近、组间远离的演化趋势。', en:'Treats rhetorical moves as communicative intents: fine-tuned Qwen3-8B on LLM-augmented data to detect sentence-level intents in paper introductions, revealing three disciplinary clusters converging within and diverging across groups.' },
@@ -96,7 +99,6 @@ var PROJECTS = [
     bullets:{ zh:['参与微调语料构建','完成 Qwen3-8B 的 SFT / DPO 训练','搭建 Label-Studio 标注流水线','完成识别结果分析'], en:['Co-built the fine-tuning corpus','Ran SFT / DPO training of Qwen3-8B','Built the Label-Studio annotation pipeline','Analyzed detection results'] }
   },
   {
-    tab:{ zh:'经历 04', en:'Exp 04' },
     title:{ zh:'数据筑基，AI 赋能：城市更新数据资源建设体系与活化路径调研——以「武汉云」为例', en:'Data Foundation, AI Empowerment: Urban Renewal Data Resources — the "Wuhan Cloud" Case' },
     badge:{ zh:'📚 中国人民大学信息资源管理案例大赛 · 案例收录', en:'📚 RUC Information Resource Management Case Competition · accepted' },
     intro:{ zh:'调研「武汉云」城市数据资源体系建设实践，系统梳理其数据归集、治理与活化路径，撰写教学案例与分析报告，被中国人民大学信息资源管理案例大赛收录入库。', en:'Investigated the "Wuhan Cloud" urban data resource system; systematically mapped its data collection, governance and activation paths into a teaching case accepted into the RUC case library.' },
@@ -104,7 +106,6 @@ var PROJECTS = [
     bullets:{ zh:['作为团队负责人带队完成企业调研','主导案例框架设计与撰写','统筹投稿与收录全流程'], en:['Led the team through enterprise field research','Designed the case framework and drafted the report','Managed submission and acceptance end to end'] }
   },
   {
-    tab:{ zh:'经历 05', en:'Exp 05' },
     title:{ zh:'从网页搜索到对话交互：大语言模型对大学生观点极化感知的影响调研', en:'From Web Search to Dialogue: LLMs and Perceived Opinion Polarization' },
     badge:{ zh:'📝 第一作者 · 市场调研课程论文', en:'📝 First author · market research course paper' },
     intro:{ zh:'采用组间实验（N=30）对比网页搜索、无引用与带引用 LLM 对话搜索对大学生观点极化的影响；发现 LLM 对话更易诱导确认性提问，「来源引用」反而增强了用户对立场一致信息的选择性信任。', en:'A between-subjects experiment (N=30) comparing web search, citation-free and cited LLM chat; found LLM dialogue induces confirmatory questioning, and source citations ironically strengthen selective trust in stance-consistent information.' },
@@ -112,7 +113,6 @@ var PROJECTS = [
     bullets:{ zh:['独立完成实验设计与被试招募','执行数据收集与统计分析','完成论文写作（第一作者）'], en:['Designed the experiment and recruited participants','Ran data collection and statistical analysis','Wrote the paper as first author'] }
   },
   {
-    tab:{ zh:'经历 06', en:'Exp 06' },
     title:{ zh:'信管升学信息资源组织系统设计方案', en:'Knowledge-Graph-based Graduate Admission Info System (course project)' },
     badge:{ zh:'🎓 「信息组织」课程设计 · 核心成员', en:'🎓 Information Organization course project · core member' },
     intro:{ zh:'面向信管学生升学信息获取场景，完成系统整体设计：用户需求分析、资源描述与元数据设计、等级体系分类与分面组配设计，并以知识图谱组织升学信息资源。', en:'End-to-end system design for graduate-admission information needs: requirement analysis, metadata and classification scheme design, with a knowledge graph organizing the resources.' },
@@ -120,7 +120,6 @@ var PROJECTS = [
     bullets:{ zh:['设计领域本体与实体关系','完成图谱数据组织与可视化落地'], en:['Designed the domain ontology and entity relations','Built the graph data organization and visualization'] }
   },
   {
-    tab:{ zh:'经历 07', en:'Exp 07' },
     title:{ zh:'遗脉智新：非遗数字化传承创新项目策划', en:'Heritage Renewed: ICH Digitization Business Plan' },
     badge:{ zh:'🏅 三创赛常规赛道 · 校级一等奖成员', en:'🏅 "ICE" Challenge regular track · school-level 1st prize member' },
     intro:{ zh:'面向非遗文化传承与活化，以「数刻文脉」团队完成商业化项目策划：产品定位、用户需求分析、服务设计与落地路径规划。', en:'A commercialization plan for intangible cultural heritage revitalization: product positioning, user research, service design and rollout planning with the "ShuKe WenMai" team.' },
@@ -145,10 +144,11 @@ var CREATE_STATS = [
   { num:'2',      zh:'内容平台运营', en:'content platforms' }
 ];
 var CREATE = [
+  { tag:{ zh:'产品设计 · UniPlan 大学计', en:'Product design · UniPlan' }, title:{ zh:'UniPlan 大学计 APP 设计', en:'UniPlan — campus life planner app' }, desc:{ zh:'独立完成 28 页用户体验设计报告：需求调研（150 份问卷）、KANO 模型分析、五模块原型设计与用户测评方案——一款用 AI 把碎片通知变成结构化日程的校园生活管理 App。', en:'Authored a 28-page UX design report: user research (150 responses), KANO analysis, five-module prototype design and an evaluation plan — an AI-powered campus life planner.' }, link:'uniplan-report.pdf', linkText:{ zh:'阅读设计报告', en:'Read the report' } },
+  { tag:{ zh:'个人主页 · Vibe Coding', en:'Homepage · Vibe Coding' }, title:{ zh:'这本可以翻的作品集', en:'A portfolio you can flip' }, desc:{ zh:'你正在读的这本书：纯手写零依赖三件套（HTML/CSS/JS），双语翻页交互、证书书架、WebAudio 合成翻页声，Git 全程版本管理。', en:'The book you are reading: hand-coded zero-dependency HTML/CSS/JS, bilingual page-flip interaction, a certificate bookshelf and WebAudio flip sounds.' }, wide:true },
   { tag:{ zh:'抖音 · 内容运营', en:'Douyin · Operations' }, title:{ zh:'招生抖音号内容运营', en:'Douyin recruitment account' }, desc:{ zh:'负责选题策划、脚本撰写与数据复盘，单条视频最高 2,600+ 赞。', en:'Topic planning, scriptwriting and data review; top video earned 2,600+ likes.' } },
   { tag:{ zh:'小红书 · 自媒体', en:'Xiaohongshu · Self-media' }, title:{ zh:'小红书自媒体运营', en:'Xiaohongshu self-media' }, desc:{ zh:'图文内容创作与账号运营，探索「数据选题材、内容做增长」的打法。', en:'Creating image-text content and growing the account with a data-informed approach.' } },
-  { tag:{ zh:'短视频 · 创作', en:'Short video · Creation' }, title:{ zh:'短视频脚本与剪辑', en:'Scripts & editing' }, desc:{ zh:'累计撰写 20+ 条短视频脚本，熟悉剪映全流程剪辑。', en:'20+ short-video scripts written; full editing workflow in Jianying (CapCut).' } },
-  { tag:{ zh:'Vibe Coding · 本站', en:'Vibe Coding · this site' }, title:{ zh:'一本可以翻的作品集', en:'A portfolio you can flip' }, desc:{ zh:'这本书本身也是创作：纯手写零依赖三件套，13+ 版本迭代，双语翻页书交互。', en:'This book is itself a creation: hand-coded zero-dependency HTML/CSS/JS, 13+ iterations, bilingual page-flip interaction.' }, wide:true }
+  { tag:{ zh:'短视频 · 创作', en:'Short video · Creation' }, title:{ zh:'短视频脚本与剪辑', en:'Scripts & editing' }, desc:{ zh:'累计撰写 20+ 条短视频脚本，熟悉剪映全流程剪辑。', en:'20+ short-video scripts written; full editing workflow in Jianying (CapCut).' } }
 ];
 
 /* ---------- 7) 渲染：书架 ---------- */
@@ -185,38 +185,37 @@ function renderTimeline(){
   });
 }
 
-/* ---------- 9) 渲染：工作档案（标签页 + 文档） ---------- */
-var currentExp = 0;
-function renderTabs(){
-  var box = document.getElementById('workTabs');
+/* ---------- 9) 渲染：项目卡片（标题+徽章常显，简介/贡献双开关展开） ---------- */
+function renderWorkCards(){
+  var box = document.getElementById('workCards');
   if (!box) return;
   box.innerHTML = '';
   PROJECTS.forEach(function(p, i){
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.setAttribute('role', 'tab');
-    b.textContent = p.tab[LANG];
-    if (i === currentExp) b.classList.add('on');
-    b.addEventListener('click', function(){ currentExp = i; renderTabs(); renderWork(); playFlip(.4); });
-    box.appendChild(b);
+    var card = document.createElement('article');
+    card.className = 'work-card';
+    var bullets = (LANG === 'en' ? p.bullets.en : p.bullets.zh).map(function(s){ return '<li>' + s + '</li>'; }).join('');
+    var tools = p.tools.map(function(s){ return '<i>' + s + '</i>'; }).join('');
+    card.innerHTML =
+      '<h3>' + p.title[LANG] + '</h3>' +
+      '<span class="wc-badge">' + p.badge[LANG] + '</span>' +
+      '<div class="wc-actions">' +
+        '<button type="button" class="wc-btn" data-toggle="show-intro" aria-expanded="false">' + t('work.introBtn') + ' ▾</button>' +
+        '<button type="button" class="wc-btn" data-toggle="show-contrib" aria-expanded="false">' + t('work.contribBtn') + ' ▾</button>' +
+      '</div>' +
+      '<div class="wc-detail wc-intro"><p>' + p.intro[LANG] + '</p><div class="doc-tools">' + tools + '</div></div>' +
+      '<div class="wc-detail wc-contrib"><h5>' + t('work.handled') + '</h5><ul>' + bullets + '</ul></div>';
+    card.querySelectorAll('.wc-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var cls = btn.getAttribute('data-toggle');
+        var open = card.classList.toggle(cls);
+        btn.classList.toggle('on', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.textContent = btn.textContent.replace(/ [▾▴]$/, open ? ' ▴' : ' ▾');
+        playFlip(.35);
+      });
+    });
+    box.appendChild(card);
   });
-}
-function renderWork(){
-  var panel = document.getElementById('workPanel');
-  if (!panel) return;
-  var p = PROJECTS[currentExp];
-  var bullets = (LANG === 'en' ? p.bullets.en : p.bullets.zh).map(function(s){ return '<li>' + s + '</li>'; }).join('');
-  var tools = p.tools.map(function(s){ return '<i>' + s + '</i>'; }).join('');
-  panel.innerHTML =
-    '<h3>' + p.title[LANG] + '</h3>' +
-    '<span class="doc-badge">' + p.badge[LANG] + '</span>' +
-    '<p class="doc-intro">' + p.intro[LANG] + '</p>' +
-    '<div class="doc-tools">' + tools + '</div>' +
-    '<div class="doc-cols"><div><h4>' + t('work.intro') + '</h4></div><div><h4>' + t('work.handled') + '</h4><ul>' + bullets + '</ul></div></div>';
-  // 左栏放简介的补充说明（把 badge 之外的语境补齐）：直接复用 intro 太重复，这里放项目编号与类型
-  panel.querySelector('.doc-cols h4').parentElement.insertAdjacentHTML('beforeend',
-    '<p class="doc-intro" style="margin:0;font-size:13px;">#' + (currentExp + 1) + ' / ' + PROJECTS.length + ' · ' +
-    (LANG === 'en' ? 'Detailed deliverables in the resume PDF.' : '完整成果与证明材料见简历 PDF。') + '</p>');
 }
 
 /* ---------- 10) 渲染：技能 ---------- */
@@ -247,8 +246,18 @@ function renderCreate(){
   CREATE.forEach(function(c){
     var el = document.createElement('div');
     el.className = 'create-card' + (c.wide ? ' wide' : '');
-    el.innerHTML = '<span class="cc-tag">' + c.tag[LANG] + '</span><h3>' + c.title[LANG] + '</h3><p>' + c.desc[LANG] + '</p>';
+    var link = c.link ? '<a class="cc-link" href="' + c.link + '" target="_blank">' + c.linkText[LANG] + ' ↗</a>' : '';
+    el.innerHTML = '<span class="cc-tag">' + c.tag[LANG] + '</span><h3>' + c.title[LANG] + '</h3><p>' + c.desc[LANG] + '</p>' + link;
     grid.appendChild(el);
+  });
+}
+
+/* ---------- 12) 悬浮联系栏：点击复制 ---------- */
+function bindContactFloat(){
+  document.querySelectorAll('.cf-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      copyText(b.getAttribute('data-copy'), b.getAttribute('data-name'));
+    });
   });
 }
 
@@ -279,7 +288,7 @@ function applyI18n(){
   document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
   document.title = LANG === 'en' ? 'Bitao Bi · Portfolio' : '闭涛 · 个人作品集';
   document.getElementById('langBtn').textContent = LANG === 'en' ? '中文' : 'EN';
-  renderTimeline(); renderTabs(); renderWork(); renderSkills(); renderCreate(); renderContacts(); renderIndicator();
+  renderTimeline(); renderWorkCards(); renderSkills(); renderCreate(); renderContacts(); renderIndicator();
 }
 
 /* ---------- 14) 翻页逻辑 ---------- */
@@ -425,6 +434,7 @@ window.addEventListener('hashchange', fromHash);
 /* ---------- 18) 启动 ---------- */
 applyI18n();
 renderBooks();
+bindContactFloat();
 initSoundBtn();
 document.getElementById('page-0').classList.add('active');
 updateChapters();

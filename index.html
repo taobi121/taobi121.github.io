@@ -16,9 +16,11 @@
 <div class="topbar">
   <button class="mark" type="button" data-go="0" aria-label="回到封面">闭涛<span>.</span></button>
   <nav class="chapters" aria-label="章节导航">
+    <button type="button" data-go="0" data-ch="0" data-i18n="nav.home">首页</button>
     <button type="button" data-go="1" data-ch="1" data-i18n="nav.learn">学习</button>
-    <button type="button" data-go="2" data-ch="2" data-i18n="nav.work">工作</button>
+    <button type="button" data-go="2" data-ch="2" data-i18n="nav.work">项目</button>
     <button type="button" data-go="3" data-ch="3" data-i18n="nav.create">创作</button>
+    <button type="button" data-go="4" data-ch="4" data-i18n="nav.contact">联系我</button>
   </nav>
   <div class="tools">
     <button id="langBtn" type="button" aria-label="切换语言">EN</button>
@@ -39,8 +41,10 @@
     <div class="cover-content">
       <p class="cover-kicker" data-i18n="cover.kicker">Welcome to my world</p>
       <h1 class="cover-title">Hi, I'm <span>闭涛</span>.</h1>
-      <p class="cover-sub" data-i18n="cover.sub">信息管理与信息系统在读 · 数据分析 × 内容运营 · 已保研南京大学</p>
+      <p class="cover-sub" data-i18n="cover.sub">本科 · 华中师范大学信息管理学院 ｜ 已保研至南京大学信息管理学院</p>
       <p class="cover-sub-en" data-i18n="cover.subEn">I'm a student, an analyst, and a creator.</p>
+      <!-- 首页直达简历 -->
+      <a class="cover-resume" href="resume.pdf" target="_blank" data-i18n="cover.resume">📄 查看完整简历</a>
       <!-- 三个身份入口，对应三个章节 -->
       <div class="cover-roles">
         <button class="role-chip" type="button" data-go="1">
@@ -83,10 +87,11 @@
     <div class="sheet">
       <header class="sheet-head">
         <p class="sheet-kicker">Professional archive</p>
-        <h2 data-i18n="work.title">工作档案 · 项目文档</h2>
+        <h2 data-i18n="work.title">项目档案</h2>
       </header>
-      <div class="tabs" id="workTabs" role="tablist" aria-label="项目切换"></div>
-      <article class="doc" id="workPanel" role="tabpanel"></article>
+      <p class="sheet-note" data-i18n="work.note">7 段项目经历：默认只露标题与成果徽章，点「项目简介 / 个人贡献」展开详情。</p>
+      <!-- 项目卡片：默认只露标题 + 成果徽章，点按钮展开详情 -->
+      <div class="work-cards" id="workCards" aria-label="项目列表"></div>
       <div class="skillbox">
         <p class="skillbox-title" data-i18n="work.skillsTitle">技能工具箱</p>
         <div id="skills"></div>
@@ -121,7 +126,6 @@
         <a class="btn-ghost" href="resume.pdf" target="_blank" data-i18n="back.resume">Read the resume</a>
       </div>
       <div class="back-contacts" id="backContacts"></div>
-      <p class="back-sign">BITAO BI</p>
     </div>
   </section>
 
@@ -138,6 +142,14 @@
 <div id="lightbox" role="dialog" aria-label="证书放大查看"><img id="lightboxImg" src="" alt="证书放大图"></div>
 <!-- 复制提示 -->
 <div id="toast" role="status" aria-live="polite"></div>
+
+<!-- 左侧悬浮联系栏：滚到哪里都能点（沿用旧版长页的设计） -->
+<div class="contact-float" role="group" aria-label="联系方式，点击图标复制">
+  <span class="cf-label">联系我</span>
+  <button class="cf-btn" type="button" data-copy="970034813" data-name="QQ" aria-label="复制 QQ 号：970034813" title="点击复制 QQ：970034813"><img src="images/icon-qq.png" alt=""></button>
+  <button class="cf-btn" type="button" data-copy="Sisyphus2026-wh" data-name="微信号" aria-label="复制微信号：Sisyphus2026-wh" title="点击复制微信号：Sisyphus2026-wh"><img src="images/icon-wechat.png" alt=""></button>
+  <button class="cf-btn cf-mail" type="button" data-copy="taobi@mails.ccnu.edu.cn" data-name="邮箱" aria-label="复制邮箱：taobi@mails.ccnu.edu.cn" title="点击复制邮箱：taobi@mails.ccnu.edu.cn">✉</button>
+</div>
 
 <script src="script.js"></script>
 </body>
