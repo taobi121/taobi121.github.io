@@ -140,13 +140,15 @@ a{color:inherit;text-decoration:none;}
 .role-chip i{color:#b9b0a2;font-size:12px;font-style:normal;letter-spacing:.02em;}
 
 /* ========== 章节页公共布局：整页插画打底 + 左侧磨砂玻璃纸页 ========== */
-.page-chapter{gap:0;position:relative;}
+/* 注意：这里绝不能再写 position:relative——会覆盖 .page 的 absolute，
+   导致页面被内容撑高、无法滚动、背景插画随内容伸缩（v3 踩过的坑） */
+.page-chapter{gap:0;}
 .sheet{
   position:relative;z-index:2;
   flex:0 0 62%;min-width:0;height:100%;overflow-y:auto;
-  background:rgba(247,242,231,.72);
-  -webkit-backdrop-filter:blur(20px) saturate(1.25);
-  backdrop-filter:blur(20px) saturate(1.25);
+  background:rgba(247,242,231,.82);
+  -webkit-backdrop-filter:blur(18px) saturate(1.2);
+  backdrop-filter:blur(18px) saturate(1.2);
   padding:34px 44px 44px;
   border-radius:0 var(--radius) var(--radius) 0;
   border-right:1px solid rgba(255,255,255,.35);
@@ -159,18 +161,25 @@ a{color:inherit;text-decoration:none;}
 }
 .sheet h2{font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:.01em;color:#221d15;}
 .sheet-note{color:var(--muted);font-size:13.5px;margin:8px 0 20px;}
+/* 左侧深墨底 + 琥珀光晕：玻璃页后不再是死黑，而是暖色氛围 */
+.page-chapter{background:radial-gradient(ellipse 70% 80% at 18% 40%,rgba(217,142,63,.16),transparent 65%),var(--ink);}
 .art{
-  position:absolute;inset:0;z-index:1;overflow:hidden;
+  position:absolute;top:0;right:0;bottom:0;width:44%;z-index:1;overflow:hidden;
 }
 .art img{width:100%;height:100%;object-fit:cover;}
-/* 每章插画取景不同，制造"翻页换景"感 */
-.art-learn img{object-position:center 20%;}
-.art-work img{object-position:center 55%;filter:saturate(1.05) brightness(.94);}
-.art-create img{object-position:center 80%;filter:saturate(1.08);}
-/* 玻璃页下的插画做一次轻压暗，保证纸上文字对比度 */
+/* 每章取景不同：竖版插画在窄容器里只露一个横带，Y 轴决定露人物哪一段 */
+.art-learn img{object-position:center 30%;}
+.art-work img{object-position:center 42%;filter:saturate(1.05) brightness(.96);}
+.art-create img{object-position:center 55%;filter:saturate(1.08);}
+/* 插画左缘与深墨底之间做柔和过渡，避免生硬切边 */
 .art::before{
-  content:"";position:absolute;inset:0;z-index:2;
-  background:linear-gradient(90deg,rgba(0,0,0,.34),rgba(0,0,0,.1) 45%,rgba(0,0,0,.05));
+  content:"";position:absolute;inset:0 auto 0 0;width:110px;z-index:2;
+  background:linear-gradient(90deg,var(--ink),transparent);
+}
+/* 玻璃页下的插画做一次轻压暗，保证纸上文字对比度 */
+.art::after{
+  content:"";position:absolute;inset:0;z-index:1;
+  background:rgba(16,13,10,.12);
 }
 
 /* ========== 第 2 页 · 学习：书架 ========== */
@@ -420,7 +429,7 @@ a{color:inherit;text-decoration:none;}
   .sheet{border-radius:0;box-shadow:none;padding:24px 18px 36px;overflow:visible;height:auto;
     flex:none;width:100%;background:var(--paper);
     -webkit-backdrop-filter:none;backdrop-filter:none;}
-  .art{position:static;height:200px;flex:none;}
+  .art{position:static;width:100%;height:200px;flex:none;}
   .art::before{display:none;}
   .art img{object-position:center 24%;}
   .topbar{gap:8px;padding:0 10px;}
