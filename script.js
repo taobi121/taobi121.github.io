@@ -445,3 +445,33 @@ document.getElementById('page-0').classList.add('active');
 updateChapters();
 renderIndicator();
 fromHash();
+
+/* ---------- 19) 移动端章节目录：默认收起，点按钮展开 ---------- */
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var nav = document.getElementById('chapterNav');
+  var scrim = document.getElementById('navScrim');
+  if (!toggle || !nav) return;
+
+  function isOpen(){ return document.body.classList.contains('nav-open'); }
+  function setOpen(open){
+    document.body.classList.toggle('nav-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? '关闭章节目录' : '打开章节目录');
+  }
+
+  toggle.addEventListener('click', function(e){
+    e.stopPropagation();
+    setOpen(!isOpen());
+  });
+  if (scrim) scrim.addEventListener('click', function(){ setOpen(false); });
+  nav.addEventListener('click', function(e){
+    if (e.target.closest('button')) setOpen(false);
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && isOpen()) setOpen(false);
+  });
+  window.addEventListener('resize', function(){
+    if (window.innerWidth > 860 && isOpen()) setOpen(false);
+  });
+})();

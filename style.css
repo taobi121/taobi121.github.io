@@ -75,6 +75,25 @@ a{color:inherit;text-decoration:none;}
 }
 .resume-pill:hover{background:var(--amber);}
 
+/* 移动端目录按钮：桌面隐藏 */
+.nav-toggle{
+  display:none;align-items:center;justify-content:center;
+  width:38px;height:34px;flex:0 0 auto;
+  border:1px solid rgba(255,255,255,.14);border-radius:9px;
+  background:transparent;transition:border-color .15s,background .15s;
+}
+.nav-toggle:hover{border-color:var(--amber);}
+.nav-toggle-bars{display:flex;flex-direction:column;gap:4px;width:16px;}
+.nav-toggle-bars i{
+  display:block;height:1.5px;width:100%;background:#e8e0d2;border-radius:2px;
+  transition:transform .22s ease,opacity .18s ease;
+}
+body.nav-open .nav-toggle-bars i:nth-child(1){transform:translateY(5.5px) rotate(45deg);}
+body.nav-open .nav-toggle-bars i:nth-child(2){opacity:0;}
+body.nav-open .nav-toggle-bars i:nth-child(3){transform:translateY(-5.5px) rotate(-45deg);}
+/* 目录展开时的遮罩（移动端才出现） */
+.nav-scrim{display:none;}
+
 /* ========== 书本与翻页 ========== */
 .book{
   position:fixed;inset:var(--topbar-h) 0 var(--pagebar-h) 0;
@@ -414,15 +433,36 @@ a{color:inherit;text-decoration:none;}
 /* ========== 移动端 ========== */
 @media (max-width:860px){
   body{overflow:auto;} /* 手机上允许页面内自然滚动 */
-  /* 顶栏改为两行：第一行 站名+工具，第二行 章节竖排；sticky 吸顶不占死高度 */
-  .topbar{position:sticky;top:0;height:auto;flex-wrap:wrap;gap:0;padding:8px 12px 10px;}
-  .mark{display:inline-flex;order:-2;font-size:13.5px;padding:3px 8px;}
-  .tools{order:-1;gap:6px;}
+  /* 顶栏：单行 站名 + 目录按钮 + 工具，高度固定，避免多行占屏 */
+  /* z-index 必须高于遮罩(55)：topbar 自身形成层叠上下文，内部面板的 z-index 无法越过它 */
+  .topbar{position:sticky;top:0;height:54px;flex-wrap:nowrap;gap:10px;padding:0 12px;z-index:70;}
+  .mark{display:inline-flex;order:0;font-size:13.5px;padding:3px 8px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
+  .nav-toggle{display:inline-flex;order:1;}
+  .tools{order:2;margin-left:auto;gap:6px;}
   .tools button{padding:5px 8px;font-size:12px;}
   .resume-pill{padding:5px 12px;font-size:12px;}
-  /* 章节竖排：每项独占一行，左侧对齐，全部可见 */
-  .chapters{flex:1 1 100%;flex-direction:column;gap:3px;margin:8px 0 0;}
-  .chapters button{text-align:left;padding:7px 12px;font-size:13.5px;letter-spacing:.12em;}
+  /* 章节目录：默认收起，点“目录”按钮后从顶栏下方展开 */
+  .chapters{
+    position:fixed;top:54px;left:0;right:0;margin:0;z-index:60;
+    display:flex;flex-direction:column;gap:2px;
+    padding:10px 12px 14px;
+    background:rgba(21,18,16,.98);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    box-shadow:0 18px 40px rgba(0,0,0,.45);
+    opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-8px);
+    transition:opacity .22s ease,transform .22s ease,visibility .22s;
+  }
+  .chapters button{text-align:left;padding:13px 16px;font-size:15px;letter-spacing:.14em;border-radius:10px;-webkit-tap-highlight-color:transparent;}
+  .chapters button:hover{background:rgba(255,255,255,.05);}
+  .chapters button:active{background:var(--amber);color:#1c1917;}
+  body.nav-open .chapters{opacity:1;visibility:visible;pointer-events:auto;transform:none;}
+  /* 遮罩：点空白处收起目录 */
+  .nav-scrim{
+    display:block;position:fixed;inset:54px 0 0 0;z-index:55;
+    background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .22s ease;
+  }
+  body.nav-open .nav-scrim{opacity:1;pointer-events:auto;}
   .book{position:static;padding-top:0;padding-bottom:var(--pagebar-h);perspective:none;}
   .page{position:relative;display:none;inset:auto;min-height:70vh;}
   .page.active{display:block;}
