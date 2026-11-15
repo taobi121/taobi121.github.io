@@ -264,7 +264,8 @@ function bindContactFloat(){
 var CONTACTS = [
   { label:{ zh:'QQ：970034813', en:'QQ 970034813' }, copy:'970034813' },
   { label:{ zh:'微信：Sisyphus2026-wh', en:'WeChat Sisyphus2026-wh' }, copy:'Sisyphus2026-wh' },
-  { label:{ zh:'邮箱：taobi@mails.ccnu.edu.cn', en:'taobi@mails.ccnu.edu.cn' }, copy:'taobi@mails.ccnu.edu.cn' }
+  { label:{ zh:'邮箱：taobi@mails.ccnu.edu.cn', en:'taobi@mails.ccnu.edu.cn' }, copy:'taobi@mails.ccnu.edu.cn' },
+  { label:{ zh:'好朋友 · yyyzl729', en:'Good friend · yyyzl729' }, url:'https://github.com/yyyzl729' }
 ];
 function renderContacts(){
   var box = document.getElementById('backContacts');
@@ -274,7 +275,10 @@ function renderContacts(){
     var b = document.createElement('button');
     b.type = 'button';
     b.textContent = c.label[LANG];
-    b.addEventListener('click', function(){ copyText(c.copy, c.copy); });
+    b.addEventListener('click', function(){
+      if (c.url) window.open(c.url, '_blank', 'noopener');
+      else copyText(c.copy, c.copy);
+    });
     box.appendChild(b);
   });
 }
