@@ -285,7 +285,7 @@ function applyI18n(){
     el.innerHTML = t(el.getAttribute('data-i18n'));
   });
   document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
-  document.title = LANG === 'en' ? 'Bitao Bi · Portfolio' : '闭涛 · 个人作品集';
+  document.title = LANG === 'en' ? 'Bitao Bi · Portfolio' : '闭涛的个人主页';
   document.getElementById('langBtn').textContent = LANG === 'en' ? '中文' : 'EN';
   renderTimeline(); renderWorkCards(); renderSkills(); renderCreate(); renderContacts(); renderIndicator();
 }

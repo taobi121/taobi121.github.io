@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>闭涛 · 个人作品集</title>
+<title>闭涛的个人主页</title>
 <meta name="description" content="闭涛的个人作品集：一本关于「学习 × 工作 × 创作」的交互翻页书。信息管理与信息系统在读，数据分析 × 内容运营，已保研南京大学。">
 <!-- 零外部依赖：样式/脚本/插画/证书图全部本地文件，可离线打开 -->
 <!-- JS 禁用兜底：直接展示封面静态内容 -->
@@ -939,7 +939,7 @@ function applyI18n(){
     el.innerHTML = t(el.getAttribute('data-i18n'));
   });
   document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
-  document.title = LANG === 'en' ? 'Bitao Bi · Portfolio' : '闭涛 · 个人作品集';
+  document.title = LANG === 'en' ? 'Bitao Bi · Portfolio' : '闭涛的个人主页';
   document.getElementById('langBtn').textContent = LANG === 'en' ? '中文' : 'EN';
   renderTimeline(); renderWorkCards(); renderSkills(); renderCreate(); renderContacts(); renderIndicator();
 }
